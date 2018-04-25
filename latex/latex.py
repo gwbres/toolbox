@@ -1,11 +1,3 @@
-# NoiseXT
-NOISEXT_CAPTION = "Noise Extended Technologies"
-NOISEXT_WEBSITE = "www.noisext.com"
-NOISEXT_DOCUMENT_CLASS = "article"
-NOISEXT_DOCUMENT_FONT = "Helvetica" 
-NOISEXT_LOGO_TITLE_SCALE = "0.75"
-NOISEXT_LOGO_CORNER_SCALE = "0.30"
-
 # unicode
 UNICODE_BACKSLASH = "\u005C"
 UNICODE_ACCOLADE = ["\u007B", "\u007D"]
