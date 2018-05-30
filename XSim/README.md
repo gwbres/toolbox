@@ -135,7 +135,7 @@ It is possible to add more options to the stimulus using an *option* subdictionn
         'frequency: 25e6,
         'n-symbols': 128,
         'options': {
-            'addnoise': {'type':'white', 'density': -180},
+            'addnoise': {'type': 'white', 'density': -180},
             'AM-Tone': {'freq': 10e3, 'power': -10},
         },
     })
@@ -143,3 +143,24 @@ It is possible to add more options to the stimulus using an *option* subdictionn
 
 Modulation tones are specific to sine waves. Power is expressed in [dBc]. Added noise processes
 are possible for all available types of stimulus.
+
+** Square waves **
+
+```python
+...
+    params.append({
+        'type': 'stimulus',
+        'stype': 'squarewave',
+        'amplitude': 1.0,
+        'n-cycles': 10,
+        'n-symbols': 512,
+        'options': {
+            'addnoise': {'type': 'pink', 'density': -120},
+            'duty': 0.25
+        },
+    })
+...
+```
+
+n-cycles is the number of periods in the total stimulus. 
+'Duty=0.25' is an optionnal 25% duty cycle (50% is the default value).
