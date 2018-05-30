@@ -61,6 +61,8 @@ Optionnal information is passed to the CLI by adding an 'help' value to a simula
     })
 ```
 
+Fixed point numbers can be used:
+
 ```python
     params.append({
         'type': 'parameter',
@@ -71,4 +73,3 @@ Optionnal information is passed to the CLI by adding an 'help' value to a simula
     })
 
 ```
-
