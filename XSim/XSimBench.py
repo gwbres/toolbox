@@ -108,6 +108,19 @@ class XSimBench:
 
 					stm = XSimSineWaveStimulus(a, f, 1024, sample_rate=self.getSampleRate(), options=options)
 					self.stimuli.append(stm)
+
+				elif (d['stype'] == 'ramp'):
+
+					a = d['amplitude']
+					cycles = d['n-cycles']
+					
+					options = None
+					try:
+						options = d['options']
+					except KeyError:
+						pass
+
+					self.stimuli.append(XSimRampStimulus(a, cycles, 1024, sample_rate=self.getSampleRate(), options=options))
 		
 		self.checkEnvSanity()
 
