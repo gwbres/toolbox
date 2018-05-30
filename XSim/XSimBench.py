@@ -9,6 +9,8 @@ class XSimBench:
 	def __init__(self, dicts):
 		# attributes
 		self.lang = None
+		self.sample_rate = 100E6
+
 		self.libs = []
 		self.libs.append(["ieee","std_logic_1164"]) # always needed
 		
@@ -98,7 +100,14 @@ class XSimBench:
 					a = d['amplitude']
 					f = d['frequency']
 
-					stmls = XSimStimulus(a, f, self.getSampleRate(), 1024, options=None)
+					options = None
+					try:
+						options = d['options']
+					except KeyError:
+						pass
+
+					stm = XSimSineWaveStimulus(a, f, 1024, sample_rate=self.getSampleRate(), options=options)
+					self.stimuli.append(stm)
 		
 		self.checkEnvSanity()
 
@@ -273,8 +282,21 @@ class XSimBench:
 		fd.write("\t ------ end XSIM params -------\n")
 
 		fd.write("\t ---- XSIM stimuli ---- \n")
+		lutsize = 0
 		for stm in self.getStimuli():
-			stimuli.declare(fd, lang=self.getLanguage())	
+			lutsize += stm.numberOfSymbols()
+		fd.write('\tconstant N_SYMBOLS: natural := {:d};\n'.format(lutsize))
+		fd.write('\ttype mem is array(0 to N_SYMBOLS-1) of real;\n')
+
+		for i in range(0, self.numberOfStimuli()):
+			fd.write('\n\tconstant {:s}lut: mem := ('.format(str(self.stimuli[i])))
+			symbols = self.stimuli[i].getSymbols()
+			string = ''
+			for j in range(0, len(symbols)-1):
+				string += '{:.6e},'.format(symbols[j])
+			string += '{:.6e});\n'.format(symbols[-1])
+			fd.write(string)
+
 		fd.write("\t ---- end XSIM stimuli ---- \n")
 
 		fd.write("end package package_tb;\n\n")
