@@ -69,7 +69,7 @@ class XSimStringParam (XSimParam):
 
 class XSimFloatParam (XSimParam):
 	def __init__(self, key, value, help=None, allowed=None):
-		super(XSimFloatParam, self).__init__(name=name,help=help)
+		super(XSimFloatParam, self).__init__(key, value, help=help, allowed=allowed)
 	
 class XSimBoolParam (XSimParam):
 	def __init__(self, key, value, help=None):
