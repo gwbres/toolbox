@@ -102,3 +102,44 @@ Simulations parameters range can be constrained:
 * maximum number of bits for fixed point numbers
 * range [a:b] for integers: use '-inf' and '+inf' for maximum range
 * same thing for floating point numbers
+
+#### Signal generation
+
+Several stimulus can be generated:
+* sine waves
+* square waves
+* ramp signal
+
+The test bench will run through all stimuli by insertion order:
+
+** Sine waves **
+
+```python
+...
+    params.append({
+        'type': 'stimulus',
+        'stype': 'sinewave':
+        'amplitude': 1.0,
+        'frequency': 10e6,
+        'n-symbols': 1000
+    })
+```
+
+It is possible to add more options to the stimulus using an *option* subdictionnary:
+
+```python
+    params.append({
+        'type': 'stimulus',
+        'stype': 'sinewave',
+        'amplitude': 1.0,
+        'frequency: 25e6,
+        'n-symbols': 128,
+        'options': {
+            'addnoise': {'type':'white', 'density': -180},
+            'AM-Tone': {'freq': 10e3, 'power': -10},
+        },
+    })
+```
+
+Modulation tones are specific to sine waves. Power is expressed in [dBc]. Added noise processes
+are possible for all available types of stimulus.
