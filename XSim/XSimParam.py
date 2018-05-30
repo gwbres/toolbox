@@ -58,7 +58,7 @@ class XSimParam:
 
 		elif (type(self) == XSimFloatParam):
 			if (lang == 'vhdl'):
-				fd.write('\tconstant {:s}: real := {:s};\n'.format(self.getKey().upper(), self.getValue())) 
+				fd.write('\tconstant {:s}: real := {:.6e};\n'.format(self.getKey().upper(), self.getValue())) 
 
 		elif (type(self) == XSimIntParam):
 			if (lang == 'vhdl'):
