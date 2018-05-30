@@ -88,7 +88,13 @@ class XSimBench:
 				except KeyError:
 						pass
 
-				self.params.append(XSimStringParam(key, value, help=mhelp, allowed=allowed))
+				hidden = False
+				try:
+					hidden = d['hidden']
+				except KeyError:
+					pass
+
+				self.params.append(XSimStringParam(key, value, help=mhelp, allowed=allowed, hidden=hidden))
 
 			elif (ptype == 'float'):
 				value = d['value']
@@ -99,15 +105,41 @@ class XSimBench:
 				except KeyError:
 					pass
 
-				self.params.append(XSimFloatParam(key, value, help=d['help'], allowed=allowed))
+				mhelp = None
+				try:
+					mhelp = d['help']
+				except KeyError:
+					pass
+
+				hidden = False
+				try:
+					hidden = d['hidden']
+				except KeyError:
+					pass
+
+				self.params.append(XSimFloatParam(key, value, help=mhelp, allowed=allowed, hidden=hidden))
 
 			elif (ptype == 'bool'):
 				value = d['value']
-				self.params.append(XSimBoolParam(key, value, help=d['help']))
+				
+				hidden = False
+				try:
+					hidden = d['hidden']
+				except KeyError:
+					pass
+
+				self.params.append(XSimBoolParam(key, value, help=d['help'], hidden=hidden))
 
 			elif (ptype == 'integer'):
 				value = d['value']
-				ipm = XSimIntParam(key, value, help=d['help'])
+				
+				hidden = False
+				try:
+					hidden = d['hidden']
+				except KeyError:
+					pass
+
+				ipm = XSimIntParam(key, value, help=d['help'], hidden=hidden)
 					
 				try:
 					rm = d['min']
@@ -184,6 +216,9 @@ class XSimBench:
 		validate = False
 		for param in self.getParams():
 			key = param.getKey()
+
+			if param.isHidden():
+				continue
 			
 			if (key == "validate"):
 				validate = True

@@ -1,11 +1,12 @@
 class XSimParam:
 
-	def __init__(self, key, value, help=None, allowed=None):
+	def __init__(self, key, value, help=None, allowed=None, hidden=False):
 		self.key = key
 		self.value = value
 		self.setDefaultValue(value)
 		self.setHelpString(help)
 		self.setAllowedValues(allowed)
+		self.setHidden(hidden)
 	
 	def getKey(self):
 		return self.key
@@ -38,6 +39,12 @@ class XSimParam:
 	
 	def setHelpString(self, string):
 		self.help = string
+
+	def setHidden(self, h):
+		self.hidden = h
+	
+	def isHidden(self):
+		return self.hidden
 	
 	def declare(self, fd, lang='vhdl'):
 		if (lang != "vhdl"):
@@ -64,16 +71,16 @@ class XSimParam:
 			if (lang == 'vhdl'):
 				fd.write('\tconstant {:s}: natural := {:d};\n'.format(self.getKey().upper(), self.getValue())) 
 class XSimStringParam (XSimParam):
-	def __init__(self, key, value, help=None, allowed=None):
-		super(XSimStringParam, self).__init__(key, value, help=help, allowed=allowed)
+	def __init__(self, key, value, help=None, allowed=None, hidden=False):
+		super(XSimStringParam, self).__init__(key, value, help=help, allowed=allowed, hidden=hidden)
 
 class XSimFloatParam (XSimParam):
-	def __init__(self, key, value, help=None, allowed=None):
-		super(XSimFloatParam, self).__init__(key, value, help=help, allowed=allowed)
+	def __init__(self, key, value, help=None, allowed=None, hidden=False):
+		super(XSimFloatParam, self).__init__(key, value, help=help, allowed=allowed, hidden=hidden)
 	
 class XSimBoolParam (XSimParam):
-	def __init__(self, key, value, help=None):
-		super(XSimBoolParam, self).__init__(key, value, help=help, allowed=[0,1])
+	def __init__(self, key, value, help=None, hidden=False):
+		super(XSimBoolParam, self).__init__(key, value, help=help, allowed=[0,1], hidden=hidden)
 		self.setValue(value)
 
 	def setValue(self, v):
@@ -84,8 +91,8 @@ class XSimBoolParam (XSimParam):
 		self.value = v
 	
 class XSimIntParam (XSimParam):
-	def __init__(self, key, value, help=None, Range=None):
-		super(XSimIntParam, self).__init__(key, value, help=help)
+	def __init__(self, key, value, help=None, Range=None, hidden=False):
+		super(XSimIntParam, self).__init__(key, value, help=help, hidden=hidden)
 
 		self.setRange(['-inf','+inf'])
 		self.setValue(value)
@@ -121,13 +128,13 @@ class XSimIntParam (XSimParam):
 	
 class XSimFixedPointParam (XSimParam):
 
-	def __init__(self, key, value, help=None, allowed=None, Range=None): 
+	def __init__(self, key, value, help=None, allowed=None, Range=None, hidden=False):
 		"""
 		(Un)Signed Fixed point object
 		Q: integer part including sign bit
 		M: fractionnal part
 		"""
-		super(XSimFixedPointParam, self).__init__(key, value, help=help, allowed=allowed)
+		super(XSimFixedPointParam, self).__init__(key, value, help=help, allowed=allowed, hidden=hidden)
 
 		self.Qmax = 1
 		self.Qmin = 0
