@@ -49,8 +49,8 @@ class XSimParam:
 		
 		elif (type(self) == XSimFixedPointParam):
 			if (lang == 'vhdl'):
-				fd.write('\tconstant Q0: natural := "{:d}";\n'.format(self.q)) 
-				fd.write('\tconstant M0: natural := "{:d}";\n'.format(self.m)) 
+				fd.write('\tconstant Q0: natural := {:d};\n'.format(self.q)) 
+				fd.write('\tconstant M0: natural := {:d};\n'.format(self.m)) 
 
 		elif (type(self) == XSimBoolParam):
 			if (lang == 'vhdl'):
@@ -79,7 +79,8 @@ class XSimBoolParam (XSimParam):
 	def setValue(self, v):
 		v = int(v)
 		if not(v in [0,1]):
-			raise ValueError("value should either be 0 or 1")
+			raise ValueError("Boolean value should either be 0 or 1")
+
 		self.value = v
 	
 class XSimIntParam (XSimParam):
