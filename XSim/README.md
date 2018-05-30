@@ -164,3 +164,20 @@ are possible for all available types of stimulus.
 
 n-cycles is the number of periods in the total stimulus. 
 'Duty=0.25' is an optionnal 25% duty cycle (50% is the default value).
+
+** Ramps **
+
+```python
+...
+    params.append({
+        'type': 'stimulus',
+        'stype': 'ramp',
+        'amplitude': 0.5,
+        'n-cycles': 10,
+        'n-symbols': 1024,
+        'options': {
+            'down': True
+        },
+    })
+...
+``̀
