@@ -113,11 +113,11 @@ The test bench will run through all stimuli by insertion order:
 
 Signal model is:
 
-<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine1.png width="450" height="50"></img>
+<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine1.png width="450" height="100"></img>
 
 where
 
-<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine2.png width="450" height="50"></img>
+<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine2.png width="450" height="100"></img>
 
 &gamma;(t) represents all noise processes, 
 
