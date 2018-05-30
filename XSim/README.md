@@ -67,9 +67,7 @@ Several types of parameters are available:
 The command line interface allows to modify simulation parameters on the fly:
 
 ```python
-    ...
     bench.runCLI()
-    ...
 ```
 
 Optionnal information is passed to the CLI by adding an 'help' value to a simulation parameter:
