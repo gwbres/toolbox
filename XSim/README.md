@@ -1,3 +1,10 @@
+---
+title: "XSim"
+output:
+	github_document:
+		pandoc_args: --webtex
+---
+
 ### Test bench object
 
 The XSimBench object is a test bench descriptor, it is made of 
