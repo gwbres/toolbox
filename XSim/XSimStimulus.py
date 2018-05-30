@@ -27,11 +27,10 @@ class XSimStimulus:
 	def getType(self):
 		return 'generic-stimulus'
 	
-	def whiteNoise(self, psd, fs, mean=None):
+	def whiteNoise(self, psd, mean=None):
 		"""
 		Generates pseudo random sequence at specified PSD level
 		psd: required density [dBc/hz]
-		fs: sample rate
 		mean: optionnal DC offset
 		"""
 		if mean is None:
@@ -78,7 +77,7 @@ class XSimSineWaveStimulus (XSimStimulus):
 				noise_type = options['addnoise']['type']
 				noise_density = options['addnoise']['density']
 				if (noise_type == 'white'):
-					gamma += self.whiteNoise(noise_density, sample_rate, mean=None) 
+					gamma += self.whiteNoise(noise_density, mean=None) 
 
 				if (noise_type == 'pink'):
 					gamma += self.pinkNoise() 
@@ -102,6 +101,36 @@ class XSimSineWaveStimulus (XSimStimulus):
 
 	def __str__(self):
 		return 'sine'
+
+class XSimSquareWaveStimulus (XSimStimulus):
+	def __init__(self, a, N, nsymbols, sample_rate=100E6, options=None):
+		super(XSimSquareWaveStimulus, self).__init__(nsymbols, sample_rate=sample_rate)
+
+		duty = 0.5
+
+		alpha = np.zeros(nsymbols)
+
+		if (options is not None):
+			try:
+				noise_type = options['addnoise']['type']
+				noise_density = options['addnoise']['density']
+
+				if (noise_type == 'white'):
+					alpha += self.whiteNoise(noise_density)
+
+				if (noise_type == 'pink'):
+					alpha += self.pink()
+			
+			except KeyError:
+				pass
+
+			try:
+				duty = options['options']['duty']
+			except KeyError:
+				pass
+
+		t = np.linspace(0, 1, num=nsymbols)
+		self.symbols = alpha + a * signal.square(2*np.pi*N*t, duty=duty)
 
 class XSimRampStimulus (XSimStimulus):
 	
@@ -130,7 +159,7 @@ class XSimRampStimulus (XSimStimulus):
 				noise_density = options['addnoise']['density']
 				
 				if (noise_type == 'white'):
-					alpha += self.whiteNoise(noise_density, sample_rate) 
+					alpha += self.whiteNoise(noise_density) 
 
 				elif (noise_type == 'pink'):
 					alpha += self.pinkNoise()
@@ -139,5 +168,4 @@ class XSimRampStimulus (XSimStimulus):
 				pass
 
 		t = np.linspace(0, 1, num=nsymbols)
-
 		self.symbols = alpha + a * signal.sawtooth(sign*2*np.pi*N*t + poff)

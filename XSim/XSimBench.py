@@ -99,6 +99,7 @@ class XSimBench:
 				if (d['stype'] == 'sinewave'):
 					a = d['amplitude']
 					f = d['frequency']
+					nsymbols = d['n-symbols']
 
 					options = None
 					try:
@@ -106,13 +107,14 @@ class XSimBench:
 					except KeyError:
 						pass
 
-					stm = XSimSineWaveStimulus(a, f, 1024, sample_rate=self.getSampleRate(), options=options)
+					stm = XSimSineWaveStimulus(a, f, nsymbols, sample_rate=self.getSampleRate(), options=options)
 					self.stimuli.append(stm)
 
 				elif (d['stype'] == 'ramp'):
 
 					a = d['amplitude']
 					cycles = d['n-cycles']
+					nsymbols = d['n-symbols']
 					
 					options = None
 					try:
@@ -120,7 +122,20 @@ class XSimBench:
 					except KeyError:
 						pass
 
-					self.stimuli.append(XSimRampStimulus(a, cycles, 1024, sample_rate=self.getSampleRate(), options=options))
+					self.stimuli.append(XSimRampStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
+
+				elif (d['stype'] == 'squarewave'):
+					a = d['amplitude']
+					cycles = d['n-cycles']
+					nsymbols = d['n-symbols']
+					
+					options = None
+					try:
+						options = d['options']
+					except KeyError:
+						pass
+
+					self.stimuli.append(XSimSquareWaveStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
 		
 		self.checkEnvSanity()
 
