@@ -113,17 +113,13 @@ The test bench will run through all stimuli by insertion order:
 
 Signal model is:
 
-$$
-s(t) = a_0 \left(1+\frac{\alpha(t)}{m}\right) \sin \left(2 \pi f \left(1+\frac{\beta(t)}{m}\right)t + \phi(t) \left(1+\frac{\Omega(t)}{m}\right)\right) + \gamma(t)
-$$
+<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine1.png width="750" height="50"></img>
 
 where
 
-$$
-    \gamma(t) = \displaystyle{\sum_{n=0}^{M-1} \gamma_i(t)}
-$$
+<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine2.png width="750" height="50"></img>
 
-represents all noise processes, 
+&gamma;(t) represents all noise processes, 
 
 &alpha;(t) is the AM modulation, &beta;(t) is the FM modulation and &Omega;(t) is the PM modulation
 
