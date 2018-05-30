@@ -111,6 +111,23 @@ The test bench will run through all stimuli by insertion order:
 
 #### Sine waves
 
+Signal model is:
+
+\begin{equation}
+s(t) = a_0 \left(1+\frac{\alpha(t)}{m}\right) \sin \left(2 \pi f \left(1+\frac{\beta(t)}{m}\right)t + \phi(t) \left(1+\frac{\Omega(t)}{m}\right)\right) + \gamma(t)
+\end{equation}
+
+where
+
+\begin{equation}
+    \gamma(t) = \displaystyle{\sum_{n=0}^{M-1} \gamma_i(t)}
+\end{equation}
+
+represents all noise processes, 
+
+&alpha;(t) is the AM modulation, &beta;(t) is the FM modulation and &Omega;(t) is the PM modulation
+
+
 ```python
 ...
     params.append({
