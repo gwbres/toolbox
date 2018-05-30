@@ -71,5 +71,11 @@ Fixed point numbers can be used:
         'value': 's24.20,
         'help': 'Input data'
     })
-
 ```
+
+Simulations parameters range can be constrained:
+
+* maximum number of bits for fixed point numbers
+* range [a:b] for integers: use '-inf' and '+inf' for maximum range
+* same thing for floating point numbers
+
