@@ -109,7 +109,7 @@ Several stimulus can be generated:
 
 The test bench will run through all stimuli by insertion order:
 
-** Sine waves **
+#### Sine waves
 
 ```python
 ...
@@ -141,7 +141,7 @@ It is possible to add more options to the stimulus using an *option* subdictionn
 Modulation tones are specific to sine waves. Power is expressed in [dBc]. Added noise processes
 are possible for all available types of stimulus.
 
-** Square waves **
+#### Square waves
 
 ```python
 ...
@@ -162,7 +162,7 @@ are possible for all available types of stimulus.
 n-cycles is the number of periods in the total stimulus. 
 'Duty=0.25' is an optionnal 25% duty cycle (50% is the default value).
 
-** Ramps **
+#### Ramps
 
 ```python
 ...
@@ -177,4 +177,4 @@ n-cycles is the number of periods in the total stimulus.
         },
     })
 ...
-``̀
+```
