@@ -7,144 +7,181 @@ class XSimBench:
 	"""
 
 	def __init__(self, dicts):
+		self.descriptor = dicts
+
 		# attributes
 		self.lang = None
 		self.sample_rate = 100E6
-
 		self.libs = []
 		self.libs.append(["ieee","std_logic_1164"]) # always needed
 		
-		# params
-		self.dicts = dicts
 		self.params = []
 
 		self.stimuli = []
 
 		for d in dicts:
-			if (d['type'] == 'attribute'):
-				try:
-					lang = d['lang']
-					if (lang not in(['vhdl'])):
-						raise ValueError("lang {:s} is not supported yet".format(lang))
-					else:
-						self.lang = lang 
-				except KeyError:
-					pass
+			self.addFromDictionnary(d)
 
-				try:
-					lib = d['library']
-					self.addSimulationLibrary(lib)
-
-				except KeyError:
-					pass
-
-			elif (d['type'] == 'parameter'):
-				ptype = d['ptype']
-				key = d['key']
-				value = d['value']
-				
-				if (ptype == 'fixed_point'):
-					fxp = XSimFixedPointParam(key, value, help=d['help'])
-					
-					try:
-						fxp.setRange(d['Qmin'],d['Qmax'])
-					except KeyError:
-						pass
-					
-					mhelp = fxp.getHelpString()
-					mhelp += ' [{:d}:{:d}]'.format(d['Qmin'],d['Qmax'])
-					fxp.setHelpString(mhelp)
-
-					self.params.append(fxp)
-					self.addSimulationLibrary(['ieee_proposed', "fixed_pkg"]) # will be required
-					
-				elif (ptype == 'string'):
-					value = d['value']
-					self.params.append(XSimStringParam(key, value, help=d['help'], allowed=d['values']))
-
-				elif (ptype == 'float'):
-					value = d['value']
-
-					allowed = None
-					try:
-						allowed = d['values']
-					except KeyError:
-						pass
-
-					self.params.append(XSimFloatParam(key, value, help=d['help'], allowed=allowed))
-
-				elif (ptype == 'bool'):
-					value = d['value']
-					self.params.append(XSimBoolParam(key, value, help=d['help']))
-
-				elif (ptype == 'integer'):
-					value = d['value']
-					ipm = XSimIntParam(key, value, help=d['help'])
-					
-					try:
-						rm = d['min']
-						rM = d['max']
-						ipm.setRange([d['min'],d['max']])
-					
-						mhelp = ipm.getHelpString()
-						mhelp += ' [{:s}:{:s}]'.format(rm,rM)
-						ipm.setHelpString(mhelp)
-
-					except KeyError:
-						pass
-
-					self.params.append(ipm)
-			
-			elif (d['type'] == 'stimulus'):
-				if (d['stype'] == 'sinewave'):
-					a = d['amplitude']
-					f = d['frequency']
-					nsymbols = d['n-symbols']
-
-					options = None
-					try:
-						options = d['options']
-					except KeyError:
-						pass
-
-					stm = XSimSineWaveStimulus(a, f, nsymbols, sample_rate=self.getSampleRate(), options=options)
-					self.stimuli.append(stm)
-
-				elif (d['stype'] == 'ramp'):
-
-					a = d['amplitude']
-					cycles = d['n-cycles']
-					nsymbols = d['n-symbols']
-					
-					options = None
-					try:
-						options = d['options']
-					except KeyError:
-						pass
-
-					self.stimuli.append(XSimRampStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
-
-				elif (d['stype'] == 'squarewave'):
-					a = d['amplitude']
-					cycles = d['n-cycles']
-					nsymbols = d['n-symbols']
-					
-					options = None
-					try:
-						options = d['options']
-					except KeyError:
-						pass
-
-					self.stimuli.append(XSimSquareWaveStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
-		
 		self.checkEnvSanity()
 
+	def addFromDictionnary(self, d):
+		"""
+		Adds either
+			+ an attribute
+			+ a simulation parameter
+			+ a signal to be generated
+		from a dictionnary/JSON descriptor
+		"""
+		
+		if (d['type'] == 'attribute'):
+			try:
+				lang = d['language']
+				if (lang not in(['vhdl'])):
+					raise ValueError("{:s} language is not supported yet".format(lang.upper()))
+				else:
+					self.lang = lang 
+			except KeyError:
+				pass
+
+			try:
+				lib = d['library']
+				self.addSimulationLibrary(lib)
+
+			except KeyError:
+				pass
+
+		elif (d['type'] == 'parameter'):
+			ptype = d['ptype']
+			key = d['key']
+			value = d['value']
+				
+			if (ptype == 'fixed_point'):
+				fxp = XSimFixedPointParam(key, value, help=d['help'])
+					
+				try:
+					fxp.setRange(d['Qmin'],d['Qmax'])
+				except KeyError:
+					pass
+					
+				mhelp = fxp.getHelpString()
+				try:
+					mhelp += ' [{:d}:{:d}]'.format(d['Qmin'],d['Qmax'])
+				except KeyError:
+						pass
+
+				fxp.setHelpString(mhelp)
+
+				self.params.append(fxp)
+				self.addSimulationLibrary(['ieee_proposed', "fixed_pkg"]) # will be required
+					
+			elif (ptype == 'string'):
+				value = d['value']
+				mhelp = None
+				try:
+					mhelp = d['help']
+				except KeyError:
+						pass
+			
+				allowed = None
+				try:
+					allowed = d['values']
+				except KeyError:
+						pass
+
+				self.params.append(XSimStringParam(key, value, help=mhelp, allowed=allowed))
+
+			elif (ptype == 'float'):
+				value = d['value']
+
+				allowed = None
+				try:
+					allowed = d['values']
+				except KeyError:
+					pass
+
+				self.params.append(XSimFloatParam(key, value, help=d['help'], allowed=allowed))
+
+			elif (ptype == 'bool'):
+				value = d['value']
+				self.params.append(XSimBoolParam(key, value, help=d['help']))
+
+			elif (ptype == 'integer'):
+				value = d['value']
+				ipm = XSimIntParam(key, value, help=d['help'])
+					
+				try:
+					rm = d['min']
+					rM = d['max']
+					ipm.setRange([d['min'],d['max']])
+					
+					mhelp = ipm.getHelpString()
+					mhelp += ' [{:s}:{:s}]'.format(rm,rM)
+					ipm.setHelpString(mhelp)
+
+				except KeyError:
+					pass
+
+				self.params.append(ipm)
+			
+		elif (d['type'] == 'stimulus'):
+			if (d['stype'] == 'sinewave'):
+				a = d['amplitude']
+				f = d['frequency']
+				nsymbols = d['n-symbols']
+
+				options = None
+				try:
+					options = d['options']
+				except KeyError:
+					pass
+
+				stm = XSimSineWaveStimulus(a, f, nsymbols, sample_rate=self.getSampleRate(), options=options)
+				self.stimuli.append(stm)
+
+			elif (d['stype'] == 'ramp'):
+
+				a = d['amplitude']
+				cycles = d['n-cycles']
+				nsymbols = d['n-symbols']
+					
+				options = None
+				try:
+					options = d['options']
+				except KeyError:
+					pass
+
+				self.stimuli.append(XSimRampStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
+
+			elif (d['stype'] == 'squarewave'):
+				a = d['amplitude']
+				cycles = d['n-cycles']
+				nsymbols = d['n-symbols']
+					
+				options = None
+				try:
+					options = d['options']
+				except KeyError:
+					pass
+
+				self.stimuli.append(XSimSquareWaveStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
+
 	def runCLI(self):
-		# build command line interface
+		"""
+		Runs command line interface
+		CLI regroups all simulation parameters
+		and allows user to modify all of them
+		before running simulation
+		"""
+
+		# build interface
 		cli = "\n\033[91mxsim>\033[0m\n"
 
-		validate = False
+		cli += "\t\033[94mlang\033[0m: {:s}\n".format(self.getLanguage())
 
+		for stm in self.getStimuli():
+			cli += "\t\033[93m{:s}\033[0m: {:s}".format(stm.getType(),str(stm))
+
+		validate = False
 		for param in self.getParams():
 			key = param.getKey()
 			
@@ -166,31 +203,76 @@ class XSimBench:
 
 		user = input(cli)
 		while (user != "validate"):
-			key = user.split(' ')[0]
-			value = user.split(' ')[1]
-
-			# replace in dict
-			found = False
-			for d in self.dicts:
-				try:
-					if (d['key'] == key):
-						d['value'] = value
-						found = True
-				except KeyError:
-					pass
-
-			if not(found):
-				print("Unknown parameter {:s}".format(key))
-
+			key = user.split(' ')[0].strip()
+			value = user.split(' ')[1].strip()
+			self.modify(key, value)
 			user = input()
 
 	def __str__(self):
-		return str(self.dicts)
+		return str(self.descriptor)
+
+	def modify(self, key, value):
+		"""
+		Modifies given parameter identified by key
+		"""
+		# replace in descriptor
+		found = None 
+
+		for d in self.descriptor:
+			
+			keyValue = None
+			try:
+				keyValue = d['key']
+			except KeyError:
+				pass
+
+			if keyValue == key:
+				
+				if (d['ptype'] == 'float'):
+					nValue = float(value)
+					d['value'] = nValue 
+					found = d
+
+				elif (d['ptype'] == 'bool'):
+					nValue = int(value)
+					d['value'] = nValue 
+					found = d
+
+				elif (d['ptype'] == 'integer'):
+					nValue = int(value)
+					d['value'] = nValue 
+					found = d
+
+				elif (d['ptype'] == 'string'):
+					nValue = str(value)
+					d['value'] = nValue 
+					found = d
+
+		if (found is None):
+			print("Parameter {:s} not found in descriptor".format(key))
+			return -1
+	
+		# replace in self 
+		if found['type'] == 'attribute':
+			raise ValueError('not ready yet!!')
+
+		elif found['type'] == 'parameter':
+			param = self.searchParamsByKey(key)	
+			param.setValue(nValue)
+
+		elif found['type'] == 'stimulus':
+			raise ValueError('not ready yet!!')
+
+		return 0
 
 	###################
 	# XSim attributes #
 	###################
 	def getLanguage(self):
+		"""
+		Returns simulator language
+		to be used
+		"""
 		return self.lang
 
 	###################
@@ -201,13 +283,19 @@ class XSimBench:
 
 	def getNumberOfParams(self):
 		return len(self.params)
-
-	def searchParamsByType(self, _type):
+	
+	def searchParamsByType(self, ptype):
 		results = []
 		for param in self.params:
-			if (type(param) == _type):
+			if (type(param) == ptype):
 				results.append(param)
 		return results
+
+	def searchParamsByKey(self, key):
+		for param in self.params:
+			if (param.getKey() == key):
+				return param
+		return None
 
 	def getFixedPointParams(self):
 		return self.searchParamsByType(XSimFixedPointParam)
@@ -317,7 +405,7 @@ class XSimBench:
 		fd.write('\ttype mem is array(0 to N_SYMBOLS-1) of real;\n')
 
 		for i in range(0, self.numberOfStimuli()):
-			fd.write('\n\tconstant {:s}lut: mem := ('.format(str(self.stimuli[i])))
+			fd.write('\n\tconstant {:s}lut: mem := ('.format(self.stimuli[i].getType()))
 			symbols = self.stimuli[i].getSymbols()
 			string = ''
 			for j in range(0, len(symbols)-1):
@@ -332,6 +420,6 @@ class XSimBench:
 		fd.write("package body package_tb is\n")
 		fd.write("end package body package_tb;\n")
 		fd.close()
-
+	
 class XSimError(Exception):
 	pass
