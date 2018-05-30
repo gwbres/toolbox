@@ -36,7 +36,6 @@ which is quite handy to create default environment setups.
 It is possible to create the dictionnary dump directly from a valid XSimBench object:
 
 ```python
-    ...
     bench = XSimBench(params)
     fd = open('dump.json', 'w')
     fd.write(str(bench))
