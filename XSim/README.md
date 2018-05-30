@@ -21,6 +21,30 @@ Bench object is built from a list of dictionnaries:
     ...
 ```
 
+It is possible then possible to build a simulation object
+from a previously dumped dictionnary:
+
+```python
+    fd = open('dump.json', 'r')
+    content = fd.read()
+    fd.close()
+    bench = XSimBench(eval(content))
+```
+
+which is quite handy to create default environment setups.
+
+It is possible to create the dictionnary dump directly from a valid XSimBench object:
+
+```python
+    ...
+    bench = XSimBench(params)
+    fd = open('dump.json', 'w')
+    fd.write(str(bench))
+    fd.close()
+```
+
+#### Simulation parameters
+
 Several types of parameters are available:
 
 ```python
@@ -78,4 +102,3 @@ Simulations parameters range can be constrained:
 * maximum number of bits for fixed point numbers
 * range [a:b] for integers: use '-inf' and '+inf' for maximum range
 * same thing for floating point numbers
-
