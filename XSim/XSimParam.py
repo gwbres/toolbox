@@ -80,6 +80,11 @@ class XSimParam:
 		elif (type(self) == XSimIntParam):
 			if (lang == 'vhdl'):
 				fd.write('\tconstant {:s}: natural := {:d};\n'.format(self.getKey().upper(), self.getValue())) 
+
+		elif (type(self) == XSimTimeParam):
+			if (lang == 'vhdl'):
+				fd.write('\tconstant {:s}: time := {:.3f} {:s};\n'.format(self.getKey().upper(), self.getValue(), self.getUnit()))
+				
 class XSimStringParam (XSimParam):
 	def __init__(self, key, value, help=None, allowed=None, hidden=False, formatstr=None):
 		super(XSimStringParam, self).__init__(key, value, help=help, allowed=allowed, hidden=hidden)
@@ -244,3 +249,18 @@ class XSimFixedPointParam (XSimParam):
 	
 	def isSigned(self):
 		return self.signed
+
+class XSimTimeParam (XSimParam):
+	def __init__(self, key, value, help=None, hidden=False, unit='ns'):
+		super(XSimTimeParam, self).__init__(key, value, help=help, hidden=hidden)
+		self.setFormatStr('{:.3f}')
+		self.setUnit(unit)
+	
+	def setFormatStr(self, formatstr):
+		self.formatstr = formatstr 
+
+	def setUnit(self, unit):
+		self.unit = unit
+
+	def getUnit(self):
+		return self.unit

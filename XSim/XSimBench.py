@@ -13,7 +13,7 @@ class XSimBench:
 		self.lang = None
 		self.sample_rate = 100E6
 		self.libs = []
-		self.libs.append(["ieee","std_logic_1164"]) # always needed
+		self.libs.append(["ieee","std_logic_1164.all"]) # always needed
 		
 		self.params = []
 
@@ -27,6 +27,10 @@ class XSimBench:
 		# custom PRE/POST package hooks
 		self._customPrePackageHook = None
 		self._customPostPackageHook = None
+		
+		# custom PRE/POST analysis hooks
+		self._customPreAnalysisHook = None
+		self._customPostAnalysisHook = None
 
 	def addFromDictionnary(self, d):
 		"""
@@ -91,7 +95,6 @@ class XSimBench:
 				self.addSimulationLibrary(['ieee_proposed', "fixed_pkg"]) # will be required
 					
 			elif (ptype == 'string'):
-				value = d['value']
 				mhelp = None
 				try:
 					mhelp = d['help']
@@ -113,8 +116,6 @@ class XSimBench:
 				self.params.append(XSimStringParam(key, value, help=mhelp, allowed=allowed, hidden=hidden))
 
 			elif (ptype == 'float'):
-				value = d['value']
-
 				allowed = None
 				try:
 					allowed = d['values']
@@ -142,8 +143,6 @@ class XSimBench:
 				self.params.append(XSimFloatParam(key, value, help=mhelp, allowed=allowed, hidden=hidden, formatstr=formatstr))
 
 			elif (ptype == 'bool'):
-				value = d['value']
-				
 				hidden = False
 				try:
 					hidden = d['hidden']
@@ -153,8 +152,6 @@ class XSimBench:
 				self.params.append(XSimBoolParam(key, value, help=d['help'], hidden=hidden))
 
 			elif (ptype == 'integer'):
-				value = d['value']
-
 				mhelp = None
 				try:
 					mhelp = d['help']
@@ -182,6 +179,27 @@ class XSimBench:
 					pass
 
 				self.params.append(ipm)
+
+			elif (ptype == 'time'):
+				unit = None
+				try:
+					unit = d['unit']
+				except KeyError:
+					pass
+
+				mhelp = None
+				try:
+					mhelp = d['help']
+				except KeyError:
+					pass
+
+				hidden = False
+				try:
+					hidden = d['hidden']
+				except KeyError:
+					pass
+
+				self.params.append(XSimTimeParam(key, value, unit=unit, help=mhelp, hidden=hidden))
 			
 		elif (d['type'] == 'stimulus'):
 			if (d['stype'] == 'sinewave'):
@@ -485,14 +503,11 @@ class XSimBench:
 		fd.write("\t ------ end XSIM params -------\n")
 
 		fd.write("\t ---- XSIM stimuli ---- \n")
-		lutsize = 0
-		for stm in self.getStimuli():
-			lutsize += stm.numberOfSymbols()
+		lutsize = self.stimuli[0].numberOfSymbols()
 		fd.write('\tconstant N_SYMBOLS: natural := {:d};\n'.format(lutsize))
 		fd.write('\ttype mem is array(0 to N_SYMBOLS-1) of real;\n')
-
 		for i in range(0, self.numberOfStimuli()):
-			fd.write('\n\tconstant {:s}lut: mem := ('.format(self.stimuli[i].getType()))
+			fd.write('\n\tconstant lut{:d}: mem := ('.format(i))
 			symbols = self.stimuli[i].getSymbols()
 			string = ''
 			for j in range(0, len(symbols)-1):
@@ -507,6 +522,13 @@ class XSimBench:
 		fd.write("package body package_tb is\n")
 		fd.write("end package body package_tb;\n")
 		fd.close()
+
+	def postSimRun(self):
+		results = None
+		if (self._customPreAnalysisHook is not None):	
+			results = self._customPreAnalysisHook()
+
+		print(len(results))
 	
 class XSimError(Exception):
 	pass
