@@ -101,6 +101,18 @@ Simulations parameters range can be constrained:
 * range [a:b] for integers: use '-inf' and '+inf' for maximum range
 * same thing for floating point numbers
 
+Custom formatting to be used when writing HDL can be passed:
+
+```python
+    params.append({
+        'type': 'parameter',
+        'stype': 'float',
+        'key': 'sample_rate',
+        'formatstr': '{:.3f}',
+        ...
+    )}
+``̀
+
 ***
 #### Signal generation
 
