@@ -28,9 +28,11 @@ class XSimBench:
 		self._customPrePackageHook = None
 		self._customPostPackageHook = None
 		
-		# custom PRE/POST analysis hooks
-		self._customPreAnalysisHook = None
-		self._customPostAnalysisHook = None
+		# custom method to retrieve results 
+		self._customDataParsingHook = None
+
+		# custom method to analyze sim. results
+		self._customAnalysisMethod = None
 
 	def addFromDictionnary(self, d):
 		"""
@@ -525,10 +527,14 @@ class XSimBench:
 
 	def postSimRun(self):
 		results = None
-		if (self._customPreAnalysisHook is not None):	
-			results = self._customPreAnalysisHook()
+		if (self._customDataParsingHook is None):
+			raise ValueError("_customDataParsingHook has not been defined in XSimBench object")
+		
+		results = self._customDataParsingHook()
 
-		print(len(results))
-	
+		for result in results: 
+			if (self._customAnalysisMethod is not None):
+				self._customAnalysisMethod(result)
+
 class XSimError(Exception):
 	pass
