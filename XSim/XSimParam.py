@@ -55,9 +55,14 @@ class XSimParam:
 				fd.write('\tconstant {:s}: string := "{:s}";\n'.format(self.getKey().upper(),self.getValue())) 
 		
 		elif (type(self) == XSimFixedPointParam):
+			name = self.getKey()
+			name = name.split('_')
+
 			if (lang == 'vhdl'):
-				fd.write('\tconstant Q0: natural := {:d};\n'.format(self.q)) 
-				fd.write('\tconstant M0: natural := {:d};\n'.format(self.m)) 
+				name.insert(1,'q')
+				fd.write('\tconstant {:s}: natural := {:d};\n'.format('_'.join(name).upper(), self.q)) 
+				name[1] = 'm'
+				fd.write('\tconstant {:s}: natural := {:d};\n'.format('_'.join(name).upper(), self.m)) 
 
 		elif (type(self) == XSimBoolParam):
 			if (lang == 'vhdl'):
@@ -149,6 +154,9 @@ class XSimFixedPointParam (XSimParam):
 		return [self.Qmin,self.Qmax]
 
 	def setValue(self, string):
+		"""
+		Assigns Q.M value from 'sQ.M' string
+		"""
 		if (string[0] == 's'):
 			self.signed = True
 		else:
@@ -156,6 +164,19 @@ class XSimFixedPointParam (XSimParam):
 
 		self.q = int(string[1:].split('.')[0])
 		self.m = int(string[1:].split('.')[-1])
+
+	def setQMValue(self, q, m):
+		"""
+		Assigns Q.M value 
+		"""
+		self.q = q
+		self.m = m
+
+	def getQ(self):
+		return self.q
+	
+	def getM(self):
+		return self.m
 
 	def qmax(self):
 		return self.Qmax
