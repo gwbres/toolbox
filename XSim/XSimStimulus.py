@@ -7,7 +7,6 @@ class XSimStimulus:
 	def __init__(self, key, nsymbols, sample_rate=100E6):	
 		self.setKey(key)
 		self.setNSymbols(nsymbols)
-		self.symbols = np.zeros(nsymbols)
 		self.sample_rate = sample_rate
 
 	def numberOfSymbols(self):
@@ -72,27 +71,19 @@ class XSimSineWaveStimulus (XSimStimulus):
 
 		nsymbols = self.numberOfSymbols()
 
-		add_noise = False
-		noise_type = None
-		noise_density = None
-		self.gamma = np.zeros(nsymbols)
+		self.processes = []
 
 		use_mod = False
 		tone_type = None
 		tone_power = None
 		tone_freq = None
-		self.alpha = np.zeros(nsymbols)
+		self.alpha = 0 
 		
 		if (options is not None):
 			try:
-				add_noise = True
 				noise_type = options['addnoise']['type']
 				noise_density = options['addnoise']['density']
-				if (noise_type == 'white'):
-					self.gamma += self.whiteNoise(noise_density, mean=None) 
-
-				if (noise_type == 'pink'):
-					self.gamma += self.pinkNoise() 
+				self.processes.append([noise_type, noise_density])
 			except KeyError:
 				pass
 
@@ -120,7 +111,14 @@ class XSimSineWaveStimulus (XSimStimulus):
 		return string
 	
 	def _generate(self):
-		t = np.arange(self.numberOfSymbols())/self.getSampleRate()
+		t = np.arange(self.nsymbols)/self.getSampleRate()
+		self.gamma = np.zeros(self.nsymbols)
+		for p in self.processes:
+			if (p[0] == 'white'):
+				self.gamma += self.whiteNoise(p[1], mean=None) 
+			elif (p[0] == 'pink'):
+				self.gamma += self.pinkNoise() 
+
 		self.symbols = (1+self.alpha)*self.getAmplitude()*np.sin(2*np.pi*self.getFrequency()*t) + self.gamma
 
 class XSimSquareWaveStimulus (XSimStimulus):
