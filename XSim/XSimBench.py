@@ -185,6 +185,7 @@ class XSimBench:
 			
 		elif (d['type'] == 'stimulus'):
 			if (d['stype'] == 'sinewave'):
+				key = d['key']
 				a = d['amplitude']
 				f = d['frequency']
 				nsymbols = d['n-symbols']
@@ -195,11 +196,11 @@ class XSimBench:
 				except KeyError:
 					pass
 
-				stm = XSimSineWaveStimulus(a, f, nsymbols, sample_rate=self.getSampleRate(), options=options)
+				stm = XSimSineWaveStimulus(key, a, f, nsymbols, sample_rate=self.getSampleRate(), options=options)
 				self.stimuli.append(stm)
 
 			elif (d['stype'] == 'ramp'):
-
+				key = d['key']
 				a = d['amplitude']
 				cycles = d['n-cycles']
 				nsymbols = d['n-symbols']
@@ -210,9 +211,10 @@ class XSimBench:
 				except KeyError:
 					pass
 
-				self.stimuli.append(XSimRampStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
+				self.stimuli.append(XSimRampStimulus(key, a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
 
 			elif (d['stype'] == 'squarewave'):
+				key = d['key']
 				a = d['amplitude']
 				cycles = d['n-cycles']
 				nsymbols = d['n-symbols']
@@ -223,7 +225,7 @@ class XSimBench:
 				except KeyError:
 					pass
 
-				self.stimuli.append(XSimSquareWaveStimulus(a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
+				self.stimuli.append(XSimSquareWaveStimulus(key, a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
 
 	def runCLI(self):
 		"""
@@ -386,11 +388,23 @@ class XSimBench:
 		return self.stimuli
 
 	def searchStimuliByType(self, _type):
+		"""
+		Returns list of stimulus with matching type 
+		"""
 		results = []
 		for stim in self.stimuli:
 			if (stim.getType() == _type):
 				results.append(stim)
 		return results
+
+	def searchStimulusByKey(self, key):
+		"""
+		Returns stimulus for with key did match
+		"""
+		for stim in self.stimuli:
+			if (stim.getKey() == key):
+				return stim
+		return None
 
 	def numberOfStimuli(self):
 		"""
