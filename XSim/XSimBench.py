@@ -1,6 +1,18 @@
 from XSimParam import *
 from XSimStimulus import *
 
+# Qt5
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow, QWidget
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QLabel
+
+# pyqtgraph
+import pyqtgraph as pg
+from pyqtgraph.dockarea import *
+
 class XSimBench:
 	"""
 	Test bench object
@@ -526,15 +538,111 @@ class XSimBench:
 		fd.close()
 
 	def postSimRun(self):
-		results = None
+		
 		if (self._customDataParsingHook is None):
 			raise ValueError("_customDataParsingHook has not been defined in XSimBench object")
-		
-		results = self._customDataParsingHook()
 
-		for result in results: 
+		data = self._customDataParsingHook()
+
+		results = []
+
+		for d in data: 
 			if (self._customAnalysisMethod is not None):
-				self._customAnalysisMethod(result)
+				results.append(self._customAnalysisMethod(d))
+		
+		self.buildUIBase()
+		self.UIStackSimResults(results)
+		self.exec()
+
+	def buildUIBase(self):
+		self.ui = QApplication([])
+		self.ui.setStyle('plastique')
+
+		self.uiWidget = QMainWindow()
+
+		# menu bar
+		bar = self.uiWidget.menuBar()
+		fMenu = bar.addMenu("File")
+		action = QAction("Save as", fMenu)
+		action.triggered.connect(self.save)
+		fMenu.addAction(action)
+
+		action = QAction("Exit", fMenu)
+		action.triggered.connect(self.exit)
+		fMenu.addAction(action)
+
+		self.uiWidget.show()
+
+	def UIStackSimResults(self, results):
+		"""
+		Stacks all simulation results
+		in central widget
+		as a pyqtgraph.plot object
+		"""
+		widget = self.getUIWidget()
+		
+		# building central widget
+		area = DockArea()
+
+		results = [True,False]
+
+		for i in range(0, len(results)):
+			d = Dock("Result{:d}".format(i), size=(1,1))
+			d.addWidget(self.makeFrameWidget(results[i]))
+			area.addDock(d)
+
+		widget.setCentralWidget(area)
+		widget.resize(500,500)
+
+	def getUIWidget(self):
+		return self.uiWidget
+
+	def makeFrameWidget(self, passed):
+		widget = QWidget()
+		layout = QVBoxLayout()
+
+		widget1 = QWidget()
+		l1 = QVBoxLayout()
+		label = QLabel()
+		if (passed):
+			color = "green"
+			label.setText("Test PASSED")
+		else:
+			color = "red"
+			label.setText("Test FAILED")
+
+		label.setAlignment(Qt.AlignTop|Qt.AlignCenter)
+		l1.addWidget(label)
+		widget1.setLayout(l1)
+		
+		css = "background-color: {:s};\n".format(color)
+		css += "padding-left: 0px;\n"
+		css += "margin-bottom: 0px;\n"
+		css += "margin-top: 0px;\n"
+		widget1.setStyleSheet(css)
+		layout.addWidget(widget1)
+
+		plot = pg.PlotWidget(title="Test1")
+		plot.enableAutoRange()
+		layout.addWidget(plot)
+
+		widget.setLayout(layout)
+		return widget
+
+	def save(self, clicked):
+		"""
+		Called when file->save has been clicked
+		"""
+		return clicked
+
+	def exit(self, clicked):
+		"""
+		Called when file->exit has been clicked
+		"""
+		return clicked
+	
+	def exec(self):
+		self.ui.exec_()
 
 class XSimError(Exception):
 	pass
