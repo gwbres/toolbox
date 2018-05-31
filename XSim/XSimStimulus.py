@@ -4,7 +4,8 @@ import scipy.signal as signal
 
 class XSimStimulus:
 	
-	def __init__(self, nsymbols, sample_rate=100E6):	
+	def __init__(self, key, nsymbols, sample_rate=100E6):	
+		self.setKey(key)
 		self.symbols = np.zeros(nsymbols)
 		self.nsymbols = nsymbols
 		self.sample_rate = sample_rate
@@ -14,6 +15,12 @@ class XSimStimulus:
 		Returns number of symbols to be generated
 		"""
 		return self.nsymbols
+
+	def getKey(self):
+		return self.key
+	
+	def setKey(self, key):
+		self.key = key
 	
 	def getSymbols(self):
 		"""
@@ -54,8 +61,11 @@ class XSimStimulus:
 
 class XSimSineWaveStimulus (XSimStimulus):
 
-	def __init__(self, a, f, nsymbols, sample_rate=100E6, options=None):
-		super(XSimSineWaveStimulus, self).__init__(nsymbols, sample_rate=sample_rate)
+	def __init__(self, key, a, f, nsymbols, sample_rate=100E6, options=None):
+		super(XSimSineWaveStimulus, self).__init__(key, nsymbols, sample_rate=sample_rate)
+
+		self.freq = f
+		self.ampl = a
 
 		nsymbols = self.numberOfSymbols()
 		t = np.arange(nsymbols)/sample_rate
@@ -99,12 +109,19 @@ class XSimSineWaveStimulus (XSimStimulus):
 	def getType(self):
 		return 'sinewave'
 
+	def getFrequency(self):
+		return self.freq
+	
+	def getAmplitude(self):
+		return self.ampl
+
 	def __str__(self):
-		return 'sine'
+		string = "freq: {:.3e} Hz | ampl: {:.3e} \n".format(self.getFrequency(), self.getAmplitude())
+		return string
 
 class XSimSquareWaveStimulus (XSimStimulus):
-	def __init__(self, a, N, nsymbols, sample_rate=100E6, options=None):
-		super(XSimSquareWaveStimulus, self).__init__(nsymbols, sample_rate=sample_rate)
+	def __init__(self, key, a, N, nsymbols, sample_rate=100E6, options=None):
+		super(XSimSquareWaveStimulus, self).__init__(key, nsymbols, sample_rate=sample_rate)
 
 		duty = 0.5
 
@@ -134,8 +151,8 @@ class XSimSquareWaveStimulus (XSimStimulus):
 
 class XSimRampStimulus (XSimStimulus):
 	
-	def __init__(self, a, N, nsymbols, sample_rate=100E6, options=None):
-		super(XSimRampStimulus, self).__init__(nsymbols, sample_rate=sample_rate)
+	def __init__(self, key, a, N, nsymbols, sample_rate=100E6, options=None):
+		super(XSimRampStimulus, self).__init__(key, nsymbols, sample_rate=sample_rate)
 
 		sign = 1.0
 		poff = 0.0
