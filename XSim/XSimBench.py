@@ -1,6 +1,8 @@
 from XSimParam import *
 from XSimStimulus import *
 
+import datetime
+
 # Qt5
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
@@ -542,13 +544,12 @@ class XSimBench:
 		if (self._customDataParsingHook is None):
 			raise ValueError("_customDataParsingHook has not been defined in XSimBench object")
 
-		data = self._customDataParsingHook()
+		data = self._customDataParsingHook() # retrieve data
 
-		results = []
-
-		for d in data: 
+		results = [] # passed to UI
+		for i in range(0, len(data)): # run for all data sets
 			if (self._customAnalysisMethod is not None):
-				results.append(self._customAnalysisMethod(d))
+				results.append(self._customAnalysisMethod(self, i, data[i]))
 		
 		self.buildUIBase()
 		self.UIStackSimResults(results)
@@ -559,6 +560,8 @@ class XSimBench:
 		self.ui.setStyle('plastique')
 
 		self.uiWidget = QMainWindow()
+		date = datetime.datetime.now()
+		self.uiWidget.setWindowTitle("{:s} run".format(date.strftime('%Y/%m/%d %H:%M:%S')))
 
 		# menu bar
 		bar = self.uiWidget.menuBar()
@@ -584,11 +587,9 @@ class XSimBench:
 		# building central widget
 		area = DockArea()
 
-		results = [True,False]
-
 		for i in range(0, len(results)):
 			d = Dock("Result{:d}".format(i), size=(1,1))
-			d.addWidget(self.makeFrameWidget(results[i]))
+			d.addWidget(self.makeDockWidget(results[i]))
 			area.addDock(d)
 
 		widget.setCentralWidget(area)
@@ -597,16 +598,26 @@ class XSimBench:
 	def getUIWidget(self):
 		return self.uiWidget
 
-	def makeFrameWidget(self, passed):
+	def makeDockWidget(self, args):
+		"""
+		Builds docked widget
+		Displays simulation result in a frame
+		Optionnal data plot
+		"""
+		passed = args[0]
+		data = args[1]
+
 		widget = QWidget()
 		layout = QVBoxLayout()
 
 		widget1 = QWidget()
 		l1 = QVBoxLayout()
 		label = QLabel()
+
 		if (passed):
-			color = "green"
+			color = "#04FF9D"
 			label.setText("Test PASSED")
+		
 		else:
 			color = "red"
 			label.setText("Test FAILED")
@@ -622,9 +633,18 @@ class XSimBench:
 		widget1.setStyleSheet(css)
 		layout.addWidget(widget1)
 
-		plot = pg.PlotWidget(title="Test1")
-		plot.enableAutoRange()
-		layout.addWidget(plot)
+		if (data is not None):
+			# add plot widget item
+			plot = pg.PlotWidget()
+			plot.enableAutoRange()
+			plot.showGrid(x=True, y=True)
+			
+			pItem = plot.getPlotItem()
+			pItem.setLabel('left', 'Power', units='dB')
+			pItem.setLabel('bottom', 'Frequency', units='Hz')
+			
+			plot.plot(data[0], data[1])
+			layout.addWidget(plot)
 
 		widget.setLayout(layout)
 		return widget
