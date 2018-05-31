@@ -23,6 +23,9 @@ class XSimParam:
 	def getAllowedValues(self):
 		return self.aValues
 	
+	def getFormatStr(self):
+		return self.formatstr
+	
 	def setValue(self, v):
 		allowed = self.getAllowedValues()
 		if (allowed is None):
@@ -50,6 +53,8 @@ class XSimParam:
 		if (lang != "vhdl"):
 			raise ValueError('verilog not supported yet')
 
+		formatstr = self.getFormatStr()
+
 		if (type(self) == XSimStringParam):
 			if (lang == 'vhdl'):
 				fd.write('\tconstant {:s}: string := "{:s}";\n'.format(self.getKey().upper(),self.getValue())) 
@@ -70,33 +75,56 @@ class XSimParam:
 
 		elif (type(self) == XSimFloatParam):
 			if (lang == 'vhdl'):
-				fd.write('\tconstant {:s}: real := {:.6e};\n'.format(self.getKey().upper(), self.getValue())) 
+				fd.write('\tconstant {:s}: real := {:s};\n'.format(self.getKey(), formatstr.format(self.getValue())))
 
 		elif (type(self) == XSimIntParam):
 			if (lang == 'vhdl'):
 				fd.write('\tconstant {:s}: natural := {:d};\n'.format(self.getKey().upper(), self.getValue())) 
 class XSimStringParam (XSimParam):
-	def __init__(self, key, value, help=None, allowed=None, hidden=False):
+	def __init__(self, key, value, help=None, allowed=None, hidden=False, formatstr=None):
 		super(XSimStringParam, self).__init__(key, value, help=help, allowed=allowed, hidden=hidden)
 
+		self.setFormatStr(formatstr)
+
+	def setFormatStr(self, string):
+		if (string is None):
+			self.formatstr = '{:s}'
+		else:
+			self.formatstr = string
+
 class XSimFloatParam (XSimParam):
-	def __init__(self, key, value, help=None, allowed=None, hidden=False):
+	def __init__(self, key, value, help=None, allowed=None, hidden=False, formatstr=None):
 		super(XSimFloatParam, self).__init__(key, value, help=help, allowed=allowed, hidden=hidden)
+
+		self.setFormatStr(formatstr)
+	
+	def setFormatStr(self, string):
+		if (string is None):
+			self.formatstr = '{:.3e}'
+		else:
+			self.formatstr = string
 	
 class XSimBoolParam (XSimParam):
-	def __init__(self, key, value, help=None, hidden=False):
+	def __init__(self, key, value, help=None, hidden=False, formatstr=None):
 		super(XSimBoolParam, self).__init__(key, value, help=help, allowed=[0,1], hidden=hidden)
 		self.setValue(value)
+		self.setFormatStr(formatstr)
 
 	def setValue(self, v):
 		v = int(v)
 		if not(v in [0,1]):
 			raise ValueError("Boolean value should either be 0 or 1")
 
-		self.value = v
+		self.value = v	
+
+	def setFormatStr(self, string):
+		if (string is None):
+			self.formatstr = '{:d}'
+		else:
+			self.formatstr = string
 	
 class XSimIntParam (XSimParam):
-	def __init__(self, key, value, help=None, Range=None, hidden=False):
+	def __init__(self, key, value, help=None, Range=None, hidden=False, formatstr=None):
 		super(XSimIntParam, self).__init__(key, value, help=help, hidden=hidden)
 
 		self.setRange(['-inf','+inf'])
@@ -104,6 +132,8 @@ class XSimIntParam (XSimParam):
 
 		if (Range):
 			self.setRange(Range)
+
+		self.setFormatStr(formatstr)
 
 	def setValue(self, v):
 		[m, M] = self.getRange()
@@ -130,10 +160,16 @@ class XSimIntParam (XSimParam):
 		R: [min,max]
 		"""
 		self.range = R
+
+	def setFormatStr(self, string):
+		if (string is None): 
+			self.formatstr = '{:d}' 
+		else:
+			self.formatstr = string
 	
 class XSimFixedPointParam (XSimParam):
 
-	def __init__(self, key, value, help=None, allowed=None, Range=None, hidden=False):
+	def __init__(self, key, value, help=None, allowed=None, Range=None, hidden=False, formatstr=None):
 		"""
 		(Un)Signed Fixed point object
 		Q: integer part including sign bit
@@ -145,6 +181,8 @@ class XSimFixedPointParam (XSimParam):
 
 		if (Range):
 			self.setRange(range)
+
+		self.setFormatStr(formatstr)
 
 	def setRange(self, Qmin, Qmax):
 		self.setQmin(Qmin)
@@ -197,6 +235,12 @@ class XSimFixedPointParam (XSimParam):
 			string = "ufix "
 		string += "{:d}.{:d}".format(self.q,self.m)
 		return string
+
+	def setFormatStr(self, string):
+		if (string is None):
+			self.formatstr = '{:d}'
+		else:
+			self.formatstr = string
 	
 	def isSigned(self):
 		return self.signed

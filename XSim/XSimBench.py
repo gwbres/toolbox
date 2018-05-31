@@ -133,7 +133,13 @@ class XSimBench:
 				except KeyError:
 					pass
 
-				self.params.append(XSimFloatParam(key, value, help=mhelp, allowed=allowed, hidden=hidden))
+				formatstr = None
+				try:
+					formatstr = d['formatstr']
+				except KeyError:
+					pass
+
+				self.params.append(XSimFloatParam(key, value, help=mhelp, allowed=allowed, hidden=hidden, formatstr=formatstr))
 
 			elif (ptype == 'bool'):
 				value = d['value']
