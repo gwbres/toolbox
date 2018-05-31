@@ -33,7 +33,7 @@ from a previously dumped dictionnary:
 
 which is quite handy to create default environment setups.
 
-It is possible to create the dictionnary dump directly from a valid XSimBench object:
+It is possible to dump the dictionnary content directly from the XSimBench object:
 
 ```python
     bench = XSimBench(params)
@@ -42,6 +42,7 @@ It is possible to create the dictionnary dump directly from a valid XSimBench ob
     fd.close()
 ```
 
+***
 #### Simulation parameters
 
 Several types of parameters are available:
@@ -100,6 +101,7 @@ Simulations parameters range can be constrained:
 * range [a:b] for integers: use '-inf' and '+inf' for maximum range
 * same thing for floating point numbers
 
+***
 #### Signal generation
 
 Several stimulus can be generated:
@@ -191,3 +193,32 @@ n-cycles is the number of periods in the total stimulus.
     })
 ...
 ```
+
+***
+#### Test bench context
+
+It is almost to provide an interface generic enough to cover all possible tests to perform.
+Even the test method may depend on the Device Under Test. To perform custom stuff it is possible for the user to declare custom functions and pass a pointer to those functions to the XSimObject so it can perform dedicated stuff in this context. 
+
+Example: modify a couple variables once the user validated the simulation settings,
+prior writing the environment:
+
+```python
+def custom_pre_hook(xsim):
+    din = xsim.searchParamsByKey('data_in') # retrieve user input
+    # modify internal parameter based on user specs.
+    dout = xsim.modify('data_out', din+2)
+    
+def main():
+    ...
+    xsim = XSimObject(params)
+    xsim._customPreDeclareHook = custom_pre_hook(xsim)
+    xsim.runCLI()
+    xsim.writePackage('package_tb.vhd')
+    ...
+```
+
+Two methods are available to customize the simulation environment:
+
++ *_customPreDeclareHook()*
++ *_customPostDeclareHook()*
