@@ -136,9 +136,6 @@ class XSimFixedPointParam (XSimParam):
 		"""
 		super(XSimFixedPointParam, self).__init__(key, value, help=help, allowed=allowed, hidden=hidden)
 
-		self.Qmax = 1
-		self.Qmin = 0
-
 		self.setValue(value)
 
 		if (Range):
@@ -157,18 +154,8 @@ class XSimFixedPointParam (XSimParam):
 		else:
 			self.unsigned = False
 
-		q = int(string[1:].split('.')[0])
-		m = int(string[1:].split('.')[-1])
-
-		if (q > self.qmax()):
-			self.q = self.qmax()
-		else:
-			self.q = q
-
-		if (m > self.qmax()-1):
-			self.m = self.qmax()-1
-		else:
-			self.m = m
+		self.q = int(string[1:].split('.')[0])
+		self.m = int(string[1:].split('.')[-1])
 
 	def qmax(self):
 		return self.Qmax
