@@ -3,7 +3,7 @@ from XSimStimulus import *
 
 class XSimBench:
 	"""
-	Simulation bench object
+	Test bench object
 	"""
 
 	def __init__(self, dicts):
@@ -157,7 +157,7 @@ class XSimBench:
 
 				mhelp = None
 				try:
-					hidden = d['help']
+					mhelp = d['help']
 				except KeyError:
 					pass
 
@@ -202,7 +202,7 @@ class XSimBench:
 			elif (d['stype'] == 'ramp'):
 				key = d['key']
 				a = d['amplitude']
-				cycles = d['n-cycles']
+				nperiods = d['n-periods']
 				nsymbols = d['n-symbols']
 					
 				options = None
@@ -211,12 +211,12 @@ class XSimBench:
 				except KeyError:
 					pass
 
-				self.stimuli.append(XSimRampStimulus(key, a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
+				self.stimuli.append(XSimRampStimulus(key, a, nperiods, nsymbols, sample_rate=self.getSampleRate(), options=options))
 
 			elif (d['stype'] == 'squarewave'):
 				key = d['key']
 				a = d['amplitude']
-				cycles = d['n-cycles']
+				nperiods = d['n-periods']
 				nsymbols = d['n-symbols']
 					
 				options = None
@@ -225,7 +225,7 @@ class XSimBench:
 				except KeyError:
 					pass
 
-				self.stimuli.append(XSimSquareWaveStimulus(key, a, cycles, nsymbols, sample_rate=self.getSampleRate(), options=options))
+				self.stimuli.append(XSimSquareWaveStimulus(key, a, nperiods, nsymbols, sample_rate=self.getSampleRate(), options=options))
 
 	def runCLI(self):
 		"""
@@ -447,6 +447,10 @@ class XSimBench:
 	def writePackage(self, fp):
 		if (self._customPrePackageHook is not None):
 			self._customPrePackageHook()
+
+		# generate stimuli
+		for stim in self.stimuli:
+			stim._generate()
 
 		if (self.lang == "vhdl"):
 			self.writeVHDLPackage(fp)
