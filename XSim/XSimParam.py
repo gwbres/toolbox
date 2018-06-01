@@ -82,8 +82,16 @@ class XSimParam:
 				fd.write('\tconstant {:s}: natural := {:d};\n'.format(self.getKey().upper(), self.getValue())) 
 
 		elif (type(self) == XSimTimeParam):
+			value = self.getValue()
+			if (self.getUnit() == 'ns'):
+				value /= 1e-9
+			elif (self.getUnit() == 'us'):
+				value /= 1e-6
+			elif (self.getUnit() == 'ms'):
+				value /= 1e-3
+			
 			if (lang == 'vhdl'):
-				fd.write('\tconstant {:s}: time := {:.3f} {:s};\n'.format(self.getKey().upper(), self.getValue(), self.getUnit()))
+				fd.write('\tconstant {:s}: time := {:.3f} {:s};\n'.format(self.getKey().upper(), value, self.getUnit()))
 				
 class XSimStringParam (XSimParam):
 	def __init__(self, key, value, help=None, allowed=None, hidden=False, formatstr=None):
