@@ -1,6 +1,6 @@
 ### Test bench object
 
-The XSimBench object is a test bench descriptor, it is made of 
+The XSimBench object is a test bench descriptor, it is made of
 three types of variables:
 
 * attributes: like libraries, language etc..
@@ -127,11 +127,11 @@ The test bench will run through all stimuli by insertion order:
 
 Signal model is:
 
-<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine1.png width="550" height="100"></img>
+<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine1.png width="550" height="130"></img>
 
 where
 
-<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine2.png width="550" height="100"></img>
+<img src=https://github.com/gwbres/toolbox/blob/master/XSim/images/sine2.png width="550" height="130"></img>
 
 &gamma;(t) represents all noise processes, 
 
@@ -234,3 +234,78 @@ Two methods are available to customize the simulation environment:
 
 + *_customPreDeclareHook()*
 + *_customPostDeclareHook()*
+
+***
+#### Test bench specific methods
+
+Test bench specific data parser: 
+*it is mandatory to pass a pointer to this method*,
+othewise simulation will not run:
+
+```python
+def custom_parsing_method():
+    d1, d2 = []
+    fd = open('results.txt', 'r')
+    for line in fd:
+        d1.append(float(line))
+        d2.append(float(tline))
+    fd.close()
+    return [d1,d2]
+
+def main():
+    ...
+    obj = XSimBench(json)
+    obj._customDataParsingHook = custom_parsing_method    
+    ... 
+```
+
+This way it is possible to pass test bench dependent data to the simulation object
+
+***
+Test bench specific test method: 
+*it is mandatory to provide a test method*
+
+```python
+def custom_analysis_method(xsim):
+    # XSimResult object should be returned
+    result = XSimResult(title='test1')
+    
+    # optional data to plot
+    x = None
+    y = np.random(1024)
+    
+    # associated plot settings
+    settings = {
+        'plot-index': 0, # 1st plot
+        'left-label': 'Amplitude', 'left-unit': 'V',
+        'bottom-label': 'Sammple', 'bottom-unit': None,
+        'logx:' False, 'logy': False',
+        'pen': (255,255,0)
+    }
+    
+    result.addPlotSettings(settings)
+    result.addDataSet([x,y])
+    
+    x = np.linspace(0, 512, 512)
+    y = np.random(512)
+    
+    # associated plot settings
+    settings = {
+        'plot-index': 0, # stacked
+        'left-label': 'Amplitude', 'left-unit': 'V',
+        'bottom-label': 'Sammple', 'bottom-unit': None,
+        'logx:' False, 'logy': False',
+        'pen': (255,0,255)
+    }
+
+    result.addPlotSettings(settings)
+    result.addDataSet([x,y])
+    return result
+
+def main():
+    ...
+    obj = XSimBench(json)
+    obj._customAnalysisMethod = custom_analysis_method
+    obj.postSimRun()    
+    ...
+```
