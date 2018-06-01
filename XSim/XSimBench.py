@@ -588,10 +588,14 @@ class XSimBench:
 		# building central widget
 		area = DockArea()
 
-		for i in range(0, len(results)):
+		for i in reversed(range(0, len(results))):
 			d = Dock('Test {:d}'.format(i), size=(1,1))
 			d.addWidget(self.makeDockWidget(results[i]))
-			area.addDock(d)
+			if (i == len(results)-1):
+				area.addDock(d)
+			else:
+				area.addDock(d, 'above', pdock)
+			pdock = d
 
 		widget.setCentralWidget(area)
 		widget.resize(500,500)
@@ -610,36 +614,33 @@ class XSimBench:
 
 		widget1 = QWidget()
 		l1 = QVBoxLayout()
-		label = QLabel()
-
-		if (result.getStatus()):
-			color = "#04FF9D"
-		else:
-			color = "red"
-		
-		label.setText(str(result))
-		label.setAlignment(Qt.AlignTop|Qt.AlignCenter)
-		l1.addWidget(label)
+		l1.addWidget(result.header())
 		widget1.setLayout(l1)
 		
-		css = "background-color: {:s};\n".format(color)
+		css = "background-color: {:s};\n".format(result.getStatusColor())
 		css += "padding-left: 0px;\n"
 		css += "margin-bottom: 0px;\n"
 		css += "margin-top: 0px;\n"
 		widget1.setStyleSheet(css)
 		layout.addWidget(widget1)
 
-		if (result.getYAxis() is not None):
+		for i in range(0, len(result.getDataSets())):
 			# add plot widget item
 			plot = pg.PlotWidget()
 			plot.enableAutoRange()
 			plot.showGrid(x=True, y=True)
 			
 			pItem = plot.getPlotItem()
-			pItem.setLabel('left', 'Power', units='dB')
-			pItem.setLabel('bottom', 'Frequency', units='Hz')
+			settings = result.getPlotSettings(i)
+			if (settings):
+				pItem.setLabel('left', settings['left-label'], units=settings['left-unit'])
+				pItem.setLabel('bottom', settings['bottom-label'], units=settings['bottom-unit'])
+				plot.setLogMode(x=settings['logx'],y=settings['logy'])
 			
-			plot.plot(result.getXAxis(), result.getYAxis())
+			data = result.getDataSet(i)
+			plot.plot(data[0],data[1])
+
+			plot.resize(400,400)
 			layout.addWidget(plot)
 
 		widget.setLayout(layout)
