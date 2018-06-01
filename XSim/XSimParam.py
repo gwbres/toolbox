@@ -264,3 +264,13 @@ class XSimTimeParam (XSimParam):
 
 	def getUnit(self):
 		return self.unit
+
+	def getValue(self):
+		if (self.unit == 'ns'):
+			return self.value * 1e-9
+		elif (self.unit == 'us'):
+			return self.value * 1e-6
+		elif (self.unit == 'ms'):
+			return self.value * 1e-3
+		else:
+			return self.value
