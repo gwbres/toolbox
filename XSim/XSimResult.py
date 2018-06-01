@@ -1,12 +1,20 @@
+# Qt5
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem 
+
+SUPPORTED_STATUS = ['PASSED', 'FAILED', 'NOT VERIFIED']
+STATUS_COLORS = ["#04FF9D", "red", "#0487FF"]
+
 class XSimResult:
 
 	def __init__(self, *args, **kwargs):
 		self.setTitle('')
 		self.setMethod(None)
-		self.setStatus(False)
+		self.setStatus('NOT VERIFIED')
 		self.setExtraString(None)
-		self._x = None
-		self._y = None
+
+		# plot
+		self._xy = None
+		self.plotSettings = None
 
 		for key, value in kwargs.items():
 			if key == 'title':
@@ -17,29 +25,32 @@ class XSimResult:
 				self.setExtraString(value)
 			elif key == 'status':
 				self.setStatus(value)
-			elif key == 'x':
-				self._x = value
-			elif key == 'y':
-				self._y = value
-			elif key == 'data':
-				self._x = value[0]
-				self._y = value[1]
 
-	def __str__(self):
-		string = '{:s} | '.format(self.title)
+	def header(self):
+		tree = QTreeWidget()
+		items = ['Test']
+		data = [self.getTitle()]
 
 		if (self.getMethod()):
-			string += 'Method: "{:s}" | '.format(self.getMethod())
+			items.append('Method')
+			data.append(self.getMethod())
 
 		if (self.getExtraString()):
-			string += '{:s} | '.format(self.getExtraString())
+			items.append('Infos')
+			data.append(self.getExtraString())
 
-		if (self.getStatus()):
-			string += 'PASSED'
-		else:
-			string += "FAILED"
+		items.append('Status')
+		data.append(self.getStatus())
 
-		return string
+		head = QTreeWidgetItem(items)
+		tree.setHeaderItem(head)
+
+		line = QTreeWidgetItem(data)
+		tree.addTopLevelItem(line)
+		for i in range(0, tree.columnCount()):
+			tree.resizeColumnToContents(i)
+
+		return tree
 
 	def setTitle(self, title):
 		self.title = title
@@ -48,10 +59,16 @@ class XSimResult:
 		return self.title
 
 	def setStatus(self, sts):
+		if (not sts in SUPPORTED_STATUS):
+			raise ValueError('Status value {:s} is not supported'.format(sts))
+
 		self.status = sts
 
 	def getStatus(self):
 		return self.status
+
+	def getStatusColor(self):
+		return STATUS_COLORS[SUPPORTED_STATUS.index(self.getStatus())]
 
 	def setExtraString(self, extra):
 		self.extra = extra
@@ -59,19 +76,30 @@ class XSimResult:
 	def getExtraString(self):
 		return self.extra
 
-	def setData(self, xy):
-		self._x = xy[0]
-		self._y = xy[1]
+	def addDataSet(self, xy):
+		if (self._xy is None):
+			self._xy = [xy]
+		else:
+			self._xy.append(xy)
 	
-	def getData(self):
-		return [self.getXAxis(), self.getYAxis()]
+	def getDataSets(self):
+		return self._xy 
 
-	def getXAxis(self):
-		return self._x
-	
-	def getYAxis(self):
-		return self._y
-	
+	def getDataSet(self, index):
+		return self._xy[index]
+
+	def addPlotSettings(self, Dict):
+		if (self.plotSettings is None):
+			self.plotSettings = [Dict]
+		else:
+			self.plotSettings.append(Dict)
+
+	def getPlotSettings(self, index):
+		try:
+			return self.plotSettings[index]
+		except TypeError:
+			return None
+
 	def setMethod(self, m):
 		self.method = m
 
