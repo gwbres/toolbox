@@ -1,5 +1,6 @@
 from XSimParam import *
 from XSimStimulus import *
+from XSimResult import *
 
 import datetime
 
@@ -546,7 +547,7 @@ class XSimBench:
 
 		data = self._customDataParsingHook() # retrieve data
 
-		results = [] # passed to UI
+		results = [] # passed to UI by user
 		for i in range(0, len(data)): # run for all data sets
 			if (self._customAnalysisMethod is not None):
 				results.append(self._customAnalysisMethod(self, i, data[i]))
@@ -588,7 +589,7 @@ class XSimBench:
 		area = DockArea()
 
 		for i in range(0, len(results)):
-			d = Dock("Result{:d}".format(i), size=(1,1))
+			d = Dock('Test {:d}'.format(i), size=(1,1))
 			d.addWidget(self.makeDockWidget(results[i]))
 			area.addDock(d)
 
@@ -598,15 +599,12 @@ class XSimBench:
 	def getUIWidget(self):
 		return self.uiWidget
 
-	def makeDockWidget(self, args):
+	def makeDockWidget(self, result):
 		"""
 		Builds docked widget
 		Displays simulation result in a frame
 		Optionnal data plot
 		"""
-		passed = args[0]
-		data = args[1]
-
 		widget = QWidget()
 		layout = QVBoxLayout()
 
@@ -614,14 +612,12 @@ class XSimBench:
 		l1 = QVBoxLayout()
 		label = QLabel()
 
-		if (passed):
+		if (result.getStatus()):
 			color = "#04FF9D"
-			label.setText("Test PASSED")
-		
 		else:
 			color = "red"
-			label.setText("Test FAILED")
-
+		
+		label.setText(str(result))
 		label.setAlignment(Qt.AlignTop|Qt.AlignCenter)
 		l1.addWidget(label)
 		widget1.setLayout(l1)
@@ -633,7 +629,7 @@ class XSimBench:
 		widget1.setStyleSheet(css)
 		layout.addWidget(widget1)
 
-		if (data is not None):
+		if (result.getYAxis() is not None):
 			# add plot widget item
 			plot = pg.PlotWidget()
 			plot.enableAutoRange()
@@ -643,7 +639,7 @@ class XSimBench:
 			pItem.setLabel('left', 'Power', units='dB')
 			pItem.setLabel('bottom', 'Frequency', units='Hz')
 			
-			plot.plot(data[0], data[1])
+			plot.plot(result.getXAxis(), result.getYAxis())
 			layout.addWidget(plot)
 
 		widget.setLayout(layout)
