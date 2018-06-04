@@ -16,30 +16,6 @@
 #              [ipx::get_memory_maps s_axi -of_objects [ipx::current_core]]]
 #################################################################
 
-# taxonomies refered by the user
-set TCL_SCRIPT_KNOWN_TAXONOMIES [list \
-	"axi_infrastructure" \
-	"maths" \
-	"maths_float" \
-	"maths_multiplier" \
-	"maths_adder_substracter" \
-	"dsp" \
-	"dsp_filters" \
-	"dsp_transforms" \
-	"dsp_synthesizer"]
-
-# known ip::xact taxonomies
-set IP_XACT_KNOWN_TAXONOMIES [list \
-	"/AXI_Infrastructure" \
-	"/Math_Functions" \
-	"/Math_Functions/Floating_Point" \
-	"/Math_Functions/Multipliers" \
-	"/Math_Functions/Adders_&_Subtracters" \
-	"/Digital_Signal_Processing" \
-	"/Digital_Signal_Processing/Transforms" \
-	"/Digital_Signal_Processing/Filters" \
-	"/Digital_Signal_Processing/Waveform_Synthesis"]
-
 # following interfaces will be automatically created
 set IP_XACT_AUTO_INFERRED_BUSIFS [list \
 	"xilinx.com:interface:axis_rtl:1.0" \
@@ -47,7 +23,6 @@ set IP_XACT_AUTO_INFERRED_BUSIFS [list \
 
 # packager env
 set VENDOR ""
-set TAXONOMY "/UserIP"
 set COMPANY_URL "www.noisext.com"
 set PART xc7z045ffg900-2
 
@@ -83,16 +58,6 @@ while {$k < $len} {
 
 		--ip_repo {
 			set IP_REPO "$value"
-		}
-
-		--taxonomy {
-			set index [lsearch -exact $TCL_SCRIPT_KNOWN_TAXONOMIES "$value"] 
-			if {$index < 0} {
-				puts "\nunknown taxonomy $value"
-				puts "using default taxonomy $TAXONOMY"
-			} else {
-				set TAXONOMY [lindex $IP_XACT_KNOWN_TAXONOMIES $index]
-			}
 		}
 
 		--ip_version {
