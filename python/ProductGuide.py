@@ -13,165 +13,6 @@ import datetime
 
 from latex import *
 
-def build_specifications_section_template( product_guide ):
-	latex_section( product_guide, "IP specifications", "ip_specifications")
-	_paragraph = "You should explain IP architecture, describe available architectures,"
-	_paragraph += " and give expected performances in this section\n\n"
-	product_guide.write( _paragraph ) 
-
-	latex_subsection( product_guide, "Timing performances" )
-	_paragraph = "Timing performances of the current released version:\n\n"
-	product_guide.write( _paragraph ) 
-
-	latex_command( product_guide, "begin", [["center",UNICODE_ACCOLADE],])
-	latex_tabular_begin( product_guide, "|c|c|", "0.15cm" )
-	product_guide.write( "\\hline\n" )
-	product_guide.write( "Highest frequency achieved & 400 MHz \\\\\n" )
-	product_guide.write( "\\hline\n" )
-	product_guide.write( "Highest frequency implemented & 333 MHz \\\\\n" )
-	product_guide.write( "\\hline\n" )
-	latex_tabular_end( product_guide, "0.15cm" )
-	latex_command( product_guide, "end", [["center",UNICODE_ACCOLADE],])
-
-	latex_command( product_guide, "noindent", [])
-	_paragraph = "\\underline{0:s}Highest frequency achieved{1:s}: performance achieved in an out-of-context\n".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1])
-	_paragraph += "analysis using the related constraint file. The core\n"
-	_paragraph += "is expected to work at this frequency.\n\n"
-	product_guide.write( _paragraph ) 
-
-	latex_command( product_guide, "vspace", [["0.25cm",UNICODE_ACCOLADE],])
-	latex_command( product_guide, "noindent", [])
-	_paragraph = "\\underline{0:s}Highest frequency implemented{1:s}: the IP core has been\n".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1])
-	_paragraph += "intensively used at this frequency.\n"
-	product_guide.write( _paragraph ) 
-
-	latex_subsection( product_guide, "I/O bus interfaces" )
-	_paragraph = "Description of the available bus interfaces.\n\n"
-	product_guide.write( _paragraph ) 
-
-	latex_command( product_guide, "begin", [["center",UNICODE_ACCOLADE],])
-	latex_tabular_begin( product_guide, "|c|c|c|", "0.15cm" )
-	product_guide.write( "\\hline\n" )
-	product_guide.write( "Name     & Data bus format  & Expected data format\\\\\n" )
-	product_guide.write( "\\hline\n" )
-	product_guide.write( "DataIn1  & AXI4S slave   & Any signed fixed point representation \\\\\n" )
-	product_guide.write( "\\hline\n" )
-	product_guide.write( "DataIn1  & AXI4S slave   & Any signed fixed point representation \\\\\n" )
-	product_guide.write( "\\hline\n" )
-	product_guide.write( "DataOut2 & AXI4S master & DataIn1 size \\\\\n" )
-	product_guide.write( "\\hline\n" )
-	product_guide.write( "DataOut2 & AXI4S master & DataIn2 size \\\\\n" )
-	product_guide.write( "\\hline\n" )
-	latex_tabular_end( product_guide, "0.15cm" )
-	latex_command( product_guide, "end", [["center",UNICODE_ACCOLADE],])
-
-	latex_subsubsection( product_guide, "AXI4 stream data bus features" )
-	_paragraph = "Current IP version allows you to route some of the non-default AXI4 stream signals\n"
-	_paragraph += "through the core:\n\n"
-	product_guide.write( _paragraph )
-
-	items = []
-	items.append( "{0:s}\\tt TLAST{1:s} {2:s}: route frame marker through the core".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1],CUSTOM_COMMAND_NAMES[0]))
-	items.append( "{0:s}\\tt TREADY{1:s} {2:s}: allow back-pressure to be applied on the IP core".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1],CUSTOM_COMMAND_NAMES[0]))
-	items.append( "{0:s}\\tt TID{1:s} {2:s}: current version does not support frame identifier".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1],CUSTOM_COMMAND_NAMES[1]))
-	latex_listing( product_guide, "itemize", items )
-
-	latex_subsection( product_guide, "IP parameters" )
-	_paragraph = "Several parameters are available to customize the IP core.\n"
-	product_guide.write( _paragraph )
-
-	_items = ["parameter1", "parameter2"]
-	latex_listing( product_guide, LATEX_ITEMIZE_LISTING, _items )
-
-	latex_subsection( product_guide, "Pinout diagram" )
-	_paragraph = "Pinout diagram is not provided yet.\n%"
-	product_guide.write( _paragraph )
-	
-	_paragraph = latex_figure( "pinout_diagram.pdf", "0.75", "pinout_diagram" )
-	product_guide.write( _paragraph.replace("\n", "\n%" ))
-	product_guide.write( "\n\n" ) 
-
-	latex_subsection(product_guide, "Example of use")
-	_paragraph = "Example of use is not provided yet.\n%"
-	product_guide.write( _paragraph )
-	
-	_paragraph = latex_figure( "example_diagram.pdf", "0.75", "example_diagram" )
-	product_guide.write( _paragraph.replace("\n", "\n%" ))
-	product_guide.write( "\n\n" ) 
-
-def build_simulation_section_template(fd, ip_name, ip_category=None):
-	"""
-	Builds section template to explain how to simulate the IP core
-	"""
-	latex_section(fd, "Simulation")
-	content = "The IP core is integrated to the IP simulation library.\n\n"
-	content += "\\noindent\nUse the generic command line interface to simulate the IP core: \n"
-	fd.write(content)
-	
-	latex_command(fd, "begin", [["verbatim", UNICODE_ACCOLADE],])
-	content = "   cd $FPGA/simulation\n"
-	if (ip_category is None):
-		content += "   make TARGET={:s}".format(ip_name)
-	else:
-		content += "   make TARGET={:s}{:s}".format(ip_category,ip_name)
-	fd.write(content)
-	latex_command(fd, "end", [["verbatim", UNICODE_ACCOLADE],])
-
-	content = "Open simulation project in Vivado (gui) with the following command:\n"
-	fd.write(content)
-	latex_command(fd, "begin", [["verbatim", UNICODE_ACCOLADE],])
-	if (ip_category is None):
-		content = "   vivado $FPGA/simulation/{:s}/simulation.xpr &\n".format(ip_name)
-	else:
-		content = "   vivado $FPGA/simulation/{:s}/{:s}/simulation.xpr &\n".format(ip_category,ip_name)
-	fd.write(content)
-	latex_command(fd, "end", [["verbatim", UNICODE_ACCOLADE],])
-
-	content = "Use the following command to rerun simulation with a new stimuli set:\n" 
-	fd.write(content)
-	latex_command(fd, "begin", [["verbatim", UNICODE_ACCOLADE],])
-	content = "   cd $FPGA/simulation\n"
-	if (ip_category is None):
-		content += "   make TARGET={:s} pre-simulation".format(ip_name)
-	else:
-		content += "   make TARGET={:s}{:s} pre-simulation".format(ip_category,ip_name)
-	fd.write(content)
-	latex_command(fd, "end", [["verbatim", UNICODE_ACCOLADE],])
-
-	content = "Use the following command to rerun post simulation analysis:\n" 
-	fd.write(content)
-	latex_command(fd, "begin", [["verbatim", UNICODE_ACCOLADE],])
-	content = "   cd $FPGA/simulation\n"
-	if (ip_category is None):
-		content += "   make TARGET={:s} post-simulation".format(ip_name)
-	else:
-		content += "   make TARGET={:s}{:s} post-simulation".format(ip_category,ip_name)
-	fd.write(content)
-	latex_command(fd, "end", [["verbatim", UNICODE_ACCOLADE],])
-
-	content = "Simulation flags can be stacked, rerun complete simulation with:"
-	fd.write(content)
-	latex_command(fd, "begin", [["verbatim", UNICODE_ACCOLADE],])
-	if (ip_category is None):
-		content += "   make TARGET={:s} pre-simulation simulate post-simulation".format(ip_name)
-	else:
-		content += "   make TARGET={:s}{:s} pre-simulation simulate post-simulation".format(ip_category,ip_name)
-	fd.write(content)
-	latex_command(fd, "end", [["verbatim", UNICODE_ACCOLADE],])
-
-	fd.write("\n")
-
-	build_introduction_template(fd, ip_name, 
-		ip_category=ip_category, OpenSource=OpenSource
-	)
-	
-	build_specifications_section_template(fd)
-	build_simulation_section_template(fd, ip_name, ip_category=ip_category)
-	latex_end_doc(fd)
-
-	fd.close()
-	return 0
-
 def print_script_help():
 	for k in range(0, len(KNOWN_ARGS)):
 		_status = KNOWN_ARGS_INFO[k]
@@ -237,6 +78,8 @@ class ProductGuideProperties:
 		self.font = "Helvetica"
 		self.date = None
 
+		self.lang = []
+
 		self.version = "1.0"
 		self.encrypted = False
 		self.opensource = False
@@ -259,6 +102,8 @@ class ProductGuideProperties:
 				self.docName = value
 			elif key == "date":
 				self.date = strptime(value, 'Y/M/d')
+			elif key == "lang":
+				self.lang.addLanguage(value)
 			
 			elif key == "font":
 				self.font = value
@@ -279,6 +124,23 @@ class ProductGuideProperties:
 
 			elif key == "supported-device":
 				self.addDevice(value)
+
+	def addLanguage(self, lang):
+		supported = ["vhdl", "verilog"]
+		if not(lang in supported): 
+			raise ValueError("{:s} language is not in supported [{:s}] language list".format(lang, ",".join(supported)))
+		
+		if not lang in self.lang:
+			self.lang.append(lang.upper())
+
+	def getLanguage(self):
+		if (len(self.lang) == 0):
+			raise ValueError("RTL/Simulation language has not been specified")
+
+		if len(self.lang) == 1:
+			return self.lang[0]
+		else:
+			return "Mixed {:s}".format("/".join(self.lang))
 
 	def getFont(self):
 		return self.font
@@ -398,6 +260,9 @@ class ProductGuide:
 	def __init__(self, args):
 		self.properties = ProductGuideProperties(args)
 		self.credentials = Credentials(args)
+
+		self.properties.addLanguage("vhdl")
+		self.properties.addLanguage("verilog")
 
 		# default stuff
 		default_lang_packages = ["inputenc", "babel", "fontenc", "moresize"]
@@ -581,7 +446,9 @@ class ProductGuide:
 	
 		self.fd.write("\\hfill\n\n")
 
+		latex_command(self.fd, "begin", [["center", UNICODE_ACCOLADE],])
 		latex_tabular_begin(self.fd, "|l|r|")
+
 		self.fd.write("\\hline\n")
 		latex_command(self.fd, "multicolumn", [["2",UNICODE_ACCOLADE],["|c|",UNICODE_ACCOLADE],["Release notes",UNICODE_ACCOLADE]])
 		self.fd.write("\\\\ \\hline\n")
@@ -614,13 +481,14 @@ class ProductGuide:
 		self.fd.write("\\hline\n")
 		self.fd.write( "Example design & Not provided \\\\\n")
 		self.fd.write("\\hline\n")
-		self.fd.write("RTL  & VHDL \\\\\n")
+		self.fd.write("RTL  & {:s} \\\\\n".format(self.properties.getLanguage()))
 		self.fd.write("\\hline\n")
-		self.fd.write("Test bench & VHDL \\\\\n")
+		self.fd.write("Test bench & {:s} \\\\\n".format(self.properties.getLanguage()))
 		self.fd.write("\\hline\n")
 		self.fd.write("Constraint files & XDC \\\\\n")
 		self.fd.write("\\hline\n")
 		latex_tabular_end(self.fd, "1cm") 
+		latex_command(self.fd, "end", [["center", UNICODE_ACCOLADE],])
 	
 	def toc(self):
 		"""
@@ -631,12 +499,6 @@ class ProductGuide:
 		latex_command(self.fd, "\n\\tableofcontents", [])
 		latex_command(self.fd, "newpage", [])
 		self.fd.write("\n")
-	
-	def main_section_template(self):
-		print("main template")
-
-	def sim_section_template(self):
-		print("sim template")
 	
 	def set_page_style(self):
 		"""
@@ -718,6 +580,116 @@ class ProductGuide:
 		content += " \\date{:s}{:s} \n".format(UNICODE_ACCOLADE[0], UNICODE_ACCOLADE[1])
 		content += "{:s}\n".format(UNICODE_ACCOLADE[1])
 		self.fd.write(content+"\n")
+	
+	def main_section_template(self):
+		latex_section(self.fd, "IP specifications", "ip_specifications")
+		_paragraph = "You should explain IP architecture, describe available architectures,"
+		_paragraph += " and give expected performances in this section\n\n"
+		self.fd.write(_paragraph) 
+
+		latex_subsection(self.fd, "Timing performances")
+		_paragraph = "Timing performances of the current released version:\n\n"
+		self.fd.write(_paragraph) 
+
+		latex_command(self.fd, "begin", [["center",UNICODE_ACCOLADE],])
+		latex_tabular_begin( self.fd, "|c|c|", "0.15cm" )
+		self.fd.write("\\hline\n")
+		self.fd.write("Highest frequency achieved & 400 MHz \\\\\n")
+		self.fd.write("\\hline\n")
+		self.fd.write("Highest frequency implemented & 333 MHz \\\\\n")
+		self.fd.write("\\hline\n")
+		latex_tabular_end(self.fd, "0.15cm")
+		latex_command(self.fd, "end", [["center",UNICODE_ACCOLADE],])
+
+		latex_command(self.fd, "noindent", [])
+		_paragraph = "\\underline{0:s}Highest frequency achieved{1:s}: performance achieved in an out-of-context\n".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1])
+		_paragraph += "analysis using the related constraint file. The core\n"
+		_paragraph += "is expected to work at this frequency.\n\n"
+		self.fd.write(_paragraph) 
+
+		latex_command(self.fd, "vspace", [["0.25cm",UNICODE_ACCOLADE],])
+		latex_command(self.fd, "noindent", [])
+		_paragraph = "\\underline{0:s}Highest frequency implemented{1:s}: the IP core has been\n".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1])
+		_paragraph += "intensively used at this frequency.\n"
+		self.fd.write(_paragraph) 
+
+		latex_subsection(self.fd, "I/O bus interfaces")
+		_paragraph = "Description of the available bus interfaces.\n\n"
+		self.fd.write(_paragraph)
+
+		latex_command(self.fd, "begin", [["center",UNICODE_ACCOLADE],])
+		latex_tabular_begin(self.fd, "|c|c|c|", "0.15cm")
+
+		self.fd.write("\\hline\n")
+		self.fd.write("Name     & Data bus format  & Expected data format\\\\\n")
+		self.fd.write("\\hline\n")
+		self.fd.write("DataIn1  & AXI4S slave   & Any signed fixed point representation \\\\\n")
+		self.fd.write("\\hline\n")
+		self.fd.write("DataIn1  & AXI4S slave   & Any signed fixed point representation \\\\\n")
+		self.fd.write("\\hline\n")
+		self.fd.write("DataOut2 & AXI4S master & DataIn1 size \\\\\n")
+		self.fd.write("\\hline\n")
+		self.fd.write("DataOut2 & AXI4S master & DataIn2 size \\\\\n")
+		self.fd.write("\\hline\n")
+		latex_tabular_end(self.fd, "0.15cm")
+		latex_command(self.fd, "end", [["center",UNICODE_ACCOLADE],])
+	
+		latex_subsubsection(self.fd, "AXI4 stream data bus features")
+		_paragraph = "Current IP version allows you to route some of the non-default AXI4 stream signals\n"
+		_paragraph += "through the core:\n\n"
+		self.fd.write(_paragraph)
+
+		items = []
+		items.append("{0:s}\\tt TLAST{1:s} \\cmark: route frame marker through the core".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1]))
+		items.append("{0:s}\\tt TREADY{1:s} \\cmark: allow back-pressure to be applied on the IP core".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1]))
+		items.append("{0:s}\\tt TID{1:s} \\cmark: current version does not support frame identifier".format(UNICODE_ACCOLADE[0],UNICODE_ACCOLADE[1]))
+		latex_listing(self.fd, "itemize", items)
+
+		latex_subsection(self.fd, "IP parameters")
+		_paragraph = "Several parameters are available to customize the IP core.\n"
+		self.fd.write(_paragraph)
+
+		_items = ["parameter1", "parameter2"]
+		latex_listing(self.fd, LATEX_ITEMIZE_LISTING, _items)
+
+		latex_subsection(self.fd, "Pinout diagram")
+		_paragraph = "Pinout diagram is not provided yet.\n%"
+		self.fd.write(_paragraph)
+	
+		_paragraph = latex_figure("pinout_diagram.pdf", "0.75", "pinout_diagram")
+		self.fd.write(_paragraph.replace("\n", "\n%"))
+		self.fd.write("\n\n") 
+
+		latex_subsection(self.fd, "Example of use")
+		_paragraph = "Example of use is not provided yet.\n%"
+		self.fd.write(_paragraph)
+	
+		_paragraph = latex_figure("example_diagram.pdf", "0.75", "example_diagram")
+		self.fd.write(_paragraph.replace("\n", "\n%"))
+		self.fd.write("\n\n")
+
+	def sim_section_template(self):
+		latex_comment(self.fd, "Simulation section")
+		latex_section(self.fd, "Simulation", "simulation")
+
+		content = "Use the General purpose simulation interface"
+		content += "to simulate the IP core.\n"
+	
+		latex_command(self.fd, "begin", [["verbatim", UNICODE_ACCOLADE],])
+		
+		content = "\tcd $FPGA/simulation\n"
+		content += "\tmake TARGET={:s}\n".format(self.properties.getDocName())
+		self.fd.write(content)
+
+		latex_command(self.fd, "end", [["verbatim", UNICODE_ACCOLADE],])
+	
+		content = "Open simulation project in Vivado (gui) with the following command:\n"
+		self.fd.write(content)
+		
+		latex_command(self.fd, "begin", [["verbatim", UNICODE_ACCOLADE],])
+		content = "\tvivado $FPGA/simulation/{:s}/simulation.xpr &\n".format(self.properties.getDocName())
+		self.fd.write(content)
+		latex_command(self.fd, "end", [["verbatim", UNICODE_ACCOLADE],])
 
 if __name__ == "__main__":
 	ProductGuide(sys.argv[1:])
