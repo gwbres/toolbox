@@ -185,7 +185,7 @@ foreach busif $IP_XACT_AUTO_INFERRED_BUSIFS {
 	ipx::infer_bus_interfaces $busif [ipx::current_core]
 }
 
-puts "\ndefining bus interfaces\n"
+puts "\nBus interfaces definition\n"
 set clock_busifs [ipx::get_bus_interfaces -filter {BUS_TYPE_NAME == "clock"}]
 set axis_busifs [ipx::get_bus_interfaces -filter {BUS_TYPE_NAME == "axis"}]
 
@@ -200,19 +200,20 @@ foreach axis_busif $axis_busifs {
 	}
 }
 
-# ap_clk or ap_clock interface will
-# be clocking all AXI4S interfaces
+# 'ap_clk'/'ap_clock'/'clk' signal will
+# clock all AXI4S interfaces
 foreach clockif $clock_busifs {
 	ipx::add_bus_parameter ASSOCIATED_BUSIF $clockif
 	set clock_busif_name [lindex [split $clockif " "] 2]
 	set is_ap_clk_busif [string match $clock_busif_name "ap_clk"]
 	set is_ap_clock_busif [string match $clock_busif_name "ap_clock"]
-	if {($is_ap_clk_busif == 1)||($is_ap_clock_busif == 1)} {
+	set is_clk_busif [string match $clock_busif_name "clk"]
+	if {($is_ap_clk_busif == 1)||($is_ap_clock_busif == 1)||($is_clk_busif == 1)} {
 		set_property value $axis_concat_busif_names [ipx::get_bus_parameters ASSOCIATED_BUSIF -of_objects $clockif]
 	}
 }
 
-puts "\nip definition"
+puts "\nIP definition"
 set_property display_name $IP_NAME $core
 set_property vendor $VENDOR $core
 set_property vendor_display_name $VENDOR $core
