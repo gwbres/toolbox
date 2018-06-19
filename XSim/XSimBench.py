@@ -519,20 +519,21 @@ class XSimBench:
 			param.declare(fd, lang=self.getLanguage())
 		fd.write("\t ------ end XSIM params -------\n")
 
-		fd.write("\t ---- XSIM stimuli ---- \n")
-		lutsize = self.stimuli[0].numberOfSymbols()
-		fd.write('\tconstant N_SYMBOLS: natural := {:d};\n'.format(lutsize))
-		fd.write('\ttype mem is array(0 to N_SYMBOLS-1) of real;\n')
-		for i in range(0, self.numberOfStimuli()):
-			fd.write('\n\tconstant lut{:d}: mem := ('.format(i))
-			symbols = self.stimuli[i].getSymbols()
-			string = ''
-			for j in range(0, len(symbols)-1):
-				string += '{:.6e},'.format(symbols[j])
-			string += '{:.6e});\n'.format(symbols[-1])
-			fd.write(string)
-
-		fd.write("\t ---- end XSIM stimuli ---- \n")
+		if (len(self.stimuli) > 0):
+			# stimuli have been declared
+			fd.write("\t ---- XSIM stimuli ---- \n")
+			lutsize = self.stimuli[0].numberOfSymbols()
+			fd.write('\tconstant N_SYMBOLS: natural := {:d};\n'.format(lutsize))
+			fd.write('\ttype mem is array(0 to N_SYMBOLS-1) of real;\n')
+			for i in range(0, self.numberOfStimuli()):
+				fd.write('\n\tconstant lut{:d}: mem := ('.format(i))
+				symbols = self.stimuli[i].getSymbols()
+				string = ''
+				for j in range(0, len(symbols)-1):
+					string += '{:.6e},'.format(symbols[j])
+				string += '{:.6e});\n'.format(symbols[-1])
+				fd.write(string)
+			fd.write("\t ---- end XSIM stimuli ---- \n")
 
 		fd.write("end package package_tb;\n\n")
 		
